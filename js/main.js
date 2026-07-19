@@ -18,22 +18,26 @@ const CONFIG = {
   googleForm: {
     action:
       "https://docs.google.com/forms/d/e/1FAIpQLSeZAHSJiYR4RL0wu2pb-ur4_h7KRZPCMb6k0kROhdx8bDjjRw/formResponse",
-    fields: {
-      name: "",        // e.g. "entry.123456789"
-      attending: "entry.877086558",
-      guests: "entry.1498135098",
-      guest_names: "",
-      song: "",
-      contact: "",
-      message: "",
-    },
-    // The site's internal answer → the Google Form's exact option text.
-    // The "Regretfully declines" mapping needs the form's No option text.
-    valueMap: {
-      attending: {
-        "Joyfully accepts": "Yes,  I'll be there",
-        "Regretfully declines": "",
-      },
+    // Maps a site RSVP onto the Google Form's four questions.
+    // Choice answers must match the form's option text letter-for-letter.
+    build(data) {
+      const out = {};
+      if (data.attending === "Joyfully accepts") {
+        out["entry.877086558"] = "Yes,  I'll be there";
+      }
+      // TODO: when the form's "No" option text is known, submit it here.
+      const declining = data.attending === "Regretfully declines";
+      const names = [data.name, data.guest_names].filter(Boolean).join(", ");
+      if (names) out["entry.460312198"] = names;
+      if (!declining && data.guests) out["entry.1498135098"] = data.guests;
+      const extras = [
+        declining ? "(Regretfully declines)" : "",
+        data.message,
+        data.song ? "Song request: " + data.song : "",
+        data.contact ? "Contact: " + data.contact : "",
+      ].filter(Boolean).join(" — ");
+      if (extras) out["entry.1881695774"] = extras;
+      return out;
     },
   },
 
@@ -299,16 +303,13 @@ $$(".reveal").forEach((el) => io.observe(el));
 
     let delivered = false;
 
-    // 1. Google Form (invisible to guests) — needs entry IDs configured
+    // 1. Google Form (invisible to guests)
     const gf = CONFIG.googleForm;
-    if (gf.action && gf.fields.name) {
+    if (gf.action && gf.build) {
       try {
         const fd = new FormData();
-        for (const [key, entryId] of Object.entries(gf.fields)) {
-          if (entryId && data[key] != null && data[key] !== "") {
-            const mapped = gf.valueMap?.[key]?.[data[key]] ?? data[key];
-            if (mapped !== "") fd.append(entryId, mapped);
-          }
+        for (const [entryId, value] of Object.entries(gf.build(data))) {
+          fd.append(entryId, value);
         }
         await fetch(gf.action, { method: "POST", mode: "no-cors", body: fd });
         delivered = true;

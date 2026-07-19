@@ -66,26 +66,27 @@ music auto-pauses when the browser tab is hidden.
 
 ### Collecting RSVPs in your Google Form
 
-The site's styled RSVP form submits quietly into the couple's Google Form
-(`CONFIG.googleForm` in `js/main.js`) — guests never see the Google Form.
-To finish the wiring, the numeric entry IDs are needed:
+The site's styled RSVP form submits quietly into the couple's Google Form —
+guests never see the Google Form. `CONFIG.googleForm.build()` in
+`js/main.js` maps the site's answers onto the form's questions (entry IDs
+were extracted from the form's pre-filled link); the song request and
+contact details are folded into the message answer since the Google Form
+has no matching questions.
 
-1. Open the Google Form **editor** → ⋮ menu → **Get pre-filled link**.
-2. Type a sample answer in every question and click **Get link** → **Copy link**.
-3. The copied URL contains `entry.NNNNNNN=answer` pairs, one per question.
-   Paste each `entry.NNNNNNN` into the matching field in
-   `CONFIG.googleForm.fields`.
+Two caveats:
 
-Two form settings matter: in the Google Form's Settings, turn **off**
-"Limit to 1 response" and "Restrict to users in …" (both force guests to
-sign in to Google, which breaks quiet submission). For the *Will you
-attend?* question, the site sends the texts "Joyfully accepts" /
-"Regretfully declines" — either make that a short-answer question in the
-Google Form, or use those exact texts as the multiple-choice options.
+- In the Google Form's Settings, keep **"Limit to 1 response" off** and
+  don't restrict responses to signed-in users — both would break quiet
+  submission from the site.
+- Choice answers must match the form's option text letter-for-letter.
+  The "Yes,  I'll be there" option is wired up; the decline option's
+  exact text still needs to be filled in where the TODO marks it (until
+  then, declines are recorded via a "(Regretfully declines)" note in the
+  message field).
 
-If the Google Form IDs aren't configured, submissions fall back to
-`CONFIG.rsvpEndpoint` (Apps Script/Formspree/etc.), and finally to opening
-the guest's email app pre-filled to `CONFIG.rsvpEmail`.
+If the Google submission fails, the site falls back to
+`CONFIG.rsvpEndpoint` (Apps Script/Formspree/etc.) if set, and finally to
+opening the guest's email app pre-filled to `CONFIG.rsvpEmail`.
 
 ### Updating text & photos
 
