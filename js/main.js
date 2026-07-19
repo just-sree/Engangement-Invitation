@@ -17,10 +17,14 @@ const CONFIG = {
   rsvpEndpoint: "",
   rsvpEmail: "sreechackoth@gmail.com",
 
-  // Drop a file at assets/music.mp3 to use your own track.
-  // Until then, a soft generative strings-and-piano ambience plays.
+  // Background music, tried in this order:
+  // 1. youtubeId — streams the song through YouTube's official embedded
+  //    player (shown as a small docked video, as YouTube requires)
+  // 2. a file dropped at assets/music.mp3
+  // 3. a soft built-in generative strings-and-piano ambience
+  youtubeId: "TVbI55pDdaI",
   musicFile: "assets/music.mp3",
-  musicTitle: "Soft strings & piano",
+  musicTitle: "Our song 🎵",
 };
 
 const $ = (sel) => document.querySelector(sel);
@@ -332,13 +336,14 @@ $$(".reveal").forEach((el) => io.observe(el));
 // ------------------------------------------------------------------
 const music = (() => {
   let audioEl = null;      // <audio> path
+  let ytPlayer = null;     // YouTube IFrame player
   let actx = null;         // WebAudio fallback
   let master = null;
   let genTimer = null;
   let playing = false;
   let wasPlaying = false;
   let volume = 0.55;
-  let mode = null;         // "file" | "generated"
+  let mode = null;         // "youtube" | "file" | "generated"
 
   const toggleBtn = $("#music-toggle");
   const panel = $("#music-panel");
@@ -421,7 +426,11 @@ const music = (() => {
   }
 
   function play() {
-    if (mode === "file") {
+    if (mode === "youtube") {
+      ytPlayer.setVolume(volume * 100);
+      ytPlayer.playVideo();
+      playing = true;
+    } else if (mode === "file") {
       audioEl.volume = volume;
       audioEl.play().catch(() => {});
       playing = true;
@@ -432,7 +441,10 @@ const music = (() => {
   }
 
   function pause() {
-    if (mode === "file") {
+    if (mode === "youtube") {
+      ytPlayer.pauseVideo();
+      playing = false;
+    } else if (mode === "file") {
       audioEl.pause();
       playing = false;
     } else {
@@ -452,6 +464,7 @@ const music = (() => {
     volume = volSlider.value / 100;
     if (audioEl) audioEl.volume = volume;
     if (master) master.gain.value = volume;
+    if (ytPlayer) ytPlayer.setVolume(volume * 100);
   });
 
   // auto-mute when the tab is hidden, resume when it returns
@@ -464,38 +477,103 @@ const music = (() => {
     }
   });
 
-  return {
-    start() {
-      // Try the real track first; fall back to generated ambience.
-      const el = new Audio(CONFIG.musicFile);
-      el.loop = true;
-      el.volume = volume;
-      el.addEventListener("canplaythrough", () => {
-        if (mode) return;
-        mode = "file";
-        audioEl = el;
-        $("#music-title").textContent = CONFIG.musicTitle;
-        play();
-        wasPlaying = true;
-        peekPanel();
-      }, { once: true });
-      el.addEventListener("error", () => {
-        if (mode) return;
+  // Preferred: stream the couple's song via YouTube's official embed
+  // (docked as a small visible player). Falls back to startFile on
+  // any failure — API blocked, video unavailable, etc.
+  function tryYouTube() {
+    const dock = $("#yt-dock");
+    let settled = false;
+    const fail = () => {
+      if (settled) return;
+      settled = true;
+      dock.hidden = true;
+      startFile();
+    };
+    const failTimer = setTimeout(fail, 6000);
+
+    window.onYouTubeIframeAPIReady = () => {
+      try {
+        ytPlayer = new YT.Player("yt-frame", {
+          videoId: CONFIG.youtubeId,
+          playerVars: {
+            autoplay: 1,
+            loop: 1,
+            playlist: CONFIG.youtubeId, // required for loop to work
+            playsinline: 1,
+            rel: 0,
+          },
+          events: {
+            onReady: (e) => {
+              if (settled) return;
+              settled = true;
+              clearTimeout(failTimer);
+              mode = "youtube";
+              dock.hidden = false;
+              $("#music-title").textContent = CONFIG.musicTitle;
+              e.target.setVolume(volume * 100);
+              e.target.playVideo();
+              playing = true;
+              wasPlaying = true;
+              peekPanel();
+              updateUI();
+            },
+            onStateChange: (e) => {
+              // keep the ♪ button honest if the guest uses the
+              // player's own controls or autoplay was blocked
+              if (mode !== "youtube") return;
+              playing = e.data === YT.PlayerState.PLAYING || e.data === YT.PlayerState.BUFFERING;
+              updateUI();
+            },
+            onError: fail,
+          },
+        });
+      } catch {
+        fail();
+      }
+    };
+    const tag = document.createElement("script");
+    tag.src = "https://www.youtube.com/iframe_api";
+    tag.onerror = fail;
+    document.head.appendChild(tag);
+  }
+
+  // Next best: a local audio file; last resort: generated ambience.
+  function startFile() {
+    const el = new Audio(CONFIG.musicFile);
+    el.loop = true;
+    el.volume = volume;
+    el.addEventListener("canplaythrough", () => {
+      if (mode) return;
+      mode = "file";
+      audioEl = el;
+      $("#music-title").textContent = CONFIG.musicTitle;
+      play();
+      wasPlaying = true;
+      peekPanel();
+    }, { once: true });
+    el.addEventListener("error", () => {
+      if (mode) return;
+      mode = "generated";
+      play();
+      wasPlaying = true;
+      peekPanel();
+    }, { once: true });
+    el.load();
+    // safety: if neither event fires quickly, use generated
+    setTimeout(() => {
+      if (!mode) {
         mode = "generated";
         play();
         wasPlaying = true;
         peekPanel();
-      }, { once: true });
-      el.load();
-      // safety: if neither event fires quickly, use generated
-      setTimeout(() => {
-        if (!mode) {
-          mode = "generated";
-          play();
-          wasPlaying = true;
-          peekPanel();
-        }
-      }, 2500);
+      }
+    }, 2500);
+  }
+
+  return {
+    start() {
+      if (CONFIG.youtubeId) tryYouTube();
+      else startFile();
     },
   };
 })();

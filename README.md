@@ -19,8 +19,20 @@ A one-page animated invitation website for Mannat & Sree's engagement.
 - ♿ Animation on/off toggle + respects `prefers-reduced-motion`
 - 📱 Mobile-first (most guests will open it from WhatsApp)
 
-It is a plain static site — no build step. Host it on GitHub Pages,
-Cloudflare Pages, Vercel, or Netlify as-is.
+It is a plain static site — no build step.
+
+## Deployment
+
+**GitHub Pages (automatic):** every push to the default branch runs
+`.github/workflows/deploy-pages.yml`, which publishes the site to
+<https://just-sree.github.io/Engangement-Invitation/>.
+Renaming the repository (Settings → General → rename to e.g.
+`click-here-for-Mannat-and-Sree-Engagement-RSVP`) changes the link to match —
+Pages follows the new name automatically.
+
+**Surge (custom link):** run `./deploy-surge.sh` on any machine with Node.js
+to publish to <https://click-here-for-mannat-and-sree-engagement-rsvp.surge.sh>.
+The first run asks you to create a free Surge account.
 
 ## Quick start
 
@@ -41,11 +53,20 @@ All knobs live at the top of `js/main.js` in the `CONFIG` object:
 | `rsvpEmail` | Fallback: guest's email app opens pre-filled to this address |
 | `musicFile` / `musicTitle` | Your background track |
 
-### Adding your music
+### Music
 
-Drop a file at `assets/music.mp3` (a soft instrumental you have permission to
-use publicly). The player picks it up automatically; until then, a gentle
-generative ambience plays instead.
+Background music is tried in this order (see `CONFIG` in `js/main.js`):
+
+1. **YouTube** — `youtubeId` streams the couple's song through YouTube's
+   official embedded player, shown as a small docked video (YouTube's terms
+   require the player to be visible; this also keeps the song properly
+   licensed). Set `musicTitle` to the song's name.
+2. **Local file** — drop a track you have permission to use at
+   `assets/music.mp3`.
+3. **Built-in ambience** — a soft generative strings-and-piano loop.
+
+The ♪ button and volume slider control whichever source is active, and
+music auto-pauses when the browser tab is hidden.
 
 ### Collecting RSVPs in a Google Sheet
 
