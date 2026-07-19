@@ -22,14 +22,43 @@
   <div id="opening" aria-label="Invitation cover">
     <div class="door door-left"><div class="door-inner"></div></div>
     <div class="door door-right"><div class="door-inner"></div></div>
+
+    <!-- draped fairy lights -->
+    <svg class="op-lights" viewBox="0 0 400 60" preserveAspectRatio="none" aria-hidden="true">
+      <path d="M0 8 Q 100 38 200 12 T 400 10" fill="none" stroke="rgba(233,210,154,0.3)" stroke-width="0.8"/>
+      <g fill="#e9d29a">
+        <circle class="bulb" cx="20" cy="13" r="2"/><circle class="bulb" cx="55" cy="20" r="2"/>
+        <circle class="bulb" cx="90" cy="25" r="2"/><circle class="bulb" cx="125" cy="26" r="2"/>
+        <circle class="bulb" cx="160" cy="21" r="2"/><circle class="bulb" cx="195" cy="13" r="2"/>
+        <circle class="bulb" cx="230" cy="7" r="2"/><circle class="bulb" cx="265" cy="5" r="2"/>
+        <circle class="bulb" cx="300" cy="7" r="2"/><circle class="bulb" cx="335" cy="9" r="2"/>
+        <circle class="bulb" cx="370" cy="10" r="2"/>
+      </g>
+    </svg>
+
+    <!-- hanging lanterns -->
+    <svg class="op-lantern ol-l" viewBox="0 0 24 96" aria-hidden="true"><line x1="12" y1="0" x2="12" y2="58" stroke="#c9a24b" stroke-width="0.8"/><rect x="8" y="58" width="8" height="3" rx="1" fill="#c9a24b"/><ellipse cx="12" cy="72" rx="8.5" ry="11" fill="#b18a35"/><ellipse cx="12" cy="72" rx="5" ry="11" fill="#c9a24b"/><ellipse cx="12" cy="72" rx="2" ry="11" fill="#e9d29a"/><rect x="8" y="82.5" width="8" height="3" rx="1" fill="#c9a24b"/><line x1="12" y1="86" x2="12" y2="90" stroke="#c9a24b"/><circle cx="12" cy="91.5" r="1.5" fill="#e9d29a"/></svg>
+    <svg class="op-lantern ol-r" viewBox="0 0 24 96" aria-hidden="true"><line x1="12" y1="0" x2="12" y2="34" stroke="#c9a24b" stroke-width="0.8"/><rect x="8" y="34" width="8" height="3" rx="1" fill="#c9a24b"/><ellipse cx="12" cy="48" rx="8.5" ry="11" fill="#b18a35"/><ellipse cx="12" cy="48" rx="5" ry="11" fill="#c9a24b"/><ellipse cx="12" cy="48" rx="2" ry="11" fill="#e9d29a"/><rect x="8" y="58.5" width="8" height="3" rx="1" fill="#c9a24b"/><line x1="12" y1="62" x2="12" y2="66" stroke="#c9a24b"/><circle cx="12" cy="67.5" r="1.5" fill="#e9d29a"/></svg>
+
+    <!-- twinkling stars -->
+    <div class="op-stars" aria-hidden="true">
+      <span style="top:14%;left:12%">✦</span><span style="top:24%;left:84%">✦</span>
+      <span style="top:38%;left:7%">✧</span><span style="top:55%;left:90%">✦</span>
+      <span style="top:70%;left:14%">✦</span><span style="top:80%;left:82%">✧</span>
+      <span style="top:10%;left:60%">✧</span><span style="top:88%;left:45%">✦</span>
+    </div>
+
     <div class="opening-content">
-      <div class="opening-ornament" aria-hidden="true">✦ ❦ ✦</div>
+      <div class="op-seal" aria-hidden="true">
+        <span>M</span><span class="op-seal-amp">&amp;</span><span>S</span>
+      </div>
       <p class="opening-eyebrow">You're invited to celebrate</p>
       <p class="opening-line">the engagement of</p>
       <h1 class="opening-names">Mannat <span class="amp">&amp;</span> Sree</h1>
-      <div class="gold-rule" aria-hidden="true"><span>♥</span></div>
-      <p class="opening-date">Sunday, September 20, 2026 · Brampton, Ontario</p>
-      <button id="open-invite" class="btn btn-gold">
+      <div class="gold-rule" aria-hidden="true"><span>❦</span></div>
+      <p class="opening-date">Sunday, September 20, 2026</p>
+      <p class="opening-venue">Speranza Banquet Hall · Brampton, Ontario</p>
+      <button id="open-invite" class="btn btn-gold btn-glow">
         <span class="btn-shine" aria-hidden="true"></span>
         Open Invitation
       </button>
