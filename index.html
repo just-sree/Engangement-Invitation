@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Mannat &amp; Sree — We're Getting Engaged</title>
+  <meta name="description" content="With joyful hearts and the blessings of our families, we invite you to celebrate the engagement of Mannat & Sree. Sunday, September 20, 2026 · Speranza Banquet Hall, Brampton, Ontario." />
+  <meta property="og:title" content="Mannat & Sree — Engagement Invitation" />
+  <meta property="og:description" content="Sunday, September 20, 2026 · 6:00 PM · Speranza Banquet Hall, Brampton, Ontario. Tap to open your invitation." />
+  <meta property="og:image" content="assets/invitation-med.jpg" />
+  <meta property="og:type" content="website" />
+  <meta name="theme-color" content="#1d3327" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>💍</text></svg>" />
+</head>
+<body class="locked">
+
+  <!-- ═══════════════ ANIMATED OPENING ═══════════════ -->
+  <div id="opening" aria-label="Invitation cover">
+    <div class="door door-left"><div class="door-inner"></div></div>
+    <div class="door door-right"><div class="door-inner"></div></div>
+    <div class="opening-content">
+      <div class="opening-ornament" aria-hidden="true">✦ ❦ ✦</div>
+      <p class="opening-eyebrow">You're invited to celebrate</p>
+      <p class="opening-line">the engagement of</p>
+      <h1 class="opening-names">Mannat <span class="amp">&amp;</span> Sree</h1>
+      <div class="gold-rule" aria-hidden="true"><span>♥</span></div>
+      <p class="opening-date">Sunday, September 20, 2026 · Brampton, Ontario</p>
+      <button id="open-invite" class="btn btn-gold">
+        <span class="btn-shine" aria-hidden="true"></span>
+        Open Invitation
+      </button>
+      <p class="opening-hint">🔊 A little music will play</p>
+    </div>
+  </div>
+
+  <!-- Drifting petals & gold particles -->
+  <canvas id="petals" aria-hidden="true"></canvas>
+
+  <!-- ═══════════════ MAIN SITE ═══════════════ -->
+  <main id="site" aria-hidden="true">
+
+    <!-- HERO -->
+    <section id="hero" class="hero">
+      <div class="hero-arch">
+        <div class="lanterns" aria-hidden="true">
+          <svg class="lantern l1" viewBox="0 0 24 40"><line x1="12" y1="0" x2="12" y2="5" stroke="#c9a24b"/><rect x="8" y="5" width="8" height="3" rx="1" fill="#c9a24b"/><ellipse cx="12" cy="19" rx="8.5" ry="11" fill="#b18a35"/><ellipse cx="12" cy="19" rx="5" ry="11" fill="#c9a24b"/><ellipse cx="12" cy="19" rx="2" ry="11" fill="#e9d29a"/><rect x="8" y="29.5" width="8" height="3" rx="1" fill="#c9a24b"/><line x1="12" y1="33" x2="12" y2="37" stroke="#c9a24b"/><circle cx="12" cy="38" r="1.5" fill="#e9d29a"/></svg>
+          <svg class="lantern l2" viewBox="0 0 24 40"><line x1="12" y1="0" x2="12" y2="5" stroke="#c9a24b"/><rect x="8" y="5" width="8" height="3" rx="1" fill="#c9a24b"/><ellipse cx="12" cy="19" rx="8.5" ry="11" fill="#b18a35"/><ellipse cx="12" cy="19" rx="5" ry="11" fill="#c9a24b"/><ellipse cx="12" cy="19" rx="2" ry="11" fill="#e9d29a"/><rect x="8" y="29.5" width="8" height="3" rx="1" fill="#c9a24b"/><line x1="12" y1="33" x2="12" y2="37" stroke="#c9a24b"/><circle cx="12" cy="38" r="1.5" fill="#e9d29a"/></svg>
+          <svg class="lantern l3" viewBox="0 0 24 40"><line x1="12" y1="0" x2="12" y2="5" stroke="#c9a24b"/><rect x="8" y="5" width="8" height="3" rx="1" fill="#c9a24b"/><ellipse cx="12" cy="19" rx="8.5" ry="11" fill="#b18a35"/><ellipse cx="12" cy="19" rx="5" ry="11" fill="#c9a24b"/><ellipse cx="12" cy="19" rx="2" ry="11" fill="#e9d29a"/><rect x="8" y="29.5" width="8" height="3" rx="1" fill="#c9a24b"/><line x1="12" y1="33" x2="12" y2="37" stroke="#c9a24b"/><circle cx="12" cy="38" r="1.5" fill="#e9d29a"/></svg>
+        </div>
+        <p class="hero-eyebrow reveal">Together with our families</p>
+        <h1 class="hero-names">
+          <span class="script-name" data-letters>Mannat</span>
+          <span class="hero-amp" aria-hidden="true">&amp;</span>
+          <span class="script-name" data-letters>Sree</span>
+        </h1>
+        <p class="hero-sub reveal">are getting engaged</p>
+        <div class="gold-rule reveal" aria-hidden="true"><span>❦</span></div>
+        <p class="hero-date reveal">Sunday, September 20, 2026</p>
+        <p class="hero-venue reveal">Speranza Banquet Hall · Brampton, Ontario</p>
+        <a href="#rsvp" class="btn btn-gold reveal">RSVP</a>
+      </div>
+      <div class="scroll-indicator" aria-hidden="true">
+        <span>Our celebration awaits</span>
+        <div class="scroll-thread"></div>
+      </div>
+    </section>
+
+    <!-- WELCOME -->
+    <section id="welcome" class="section section-ivory">
+      <div class="floral-corner tl" aria-hidden="true"></div>
+      <div class="floral-corner br" aria-hidden="true"></div>
+      <div class="container narrow reveal">
+        <h2 class="section-title">With Love &amp; Blessings</h2>
+        <p class="welcome-text">
+          Daisy Rattan and Sukhbir Rattan, together with our families, warmly
+          invite you to celebrate the engagement of <em>Mannat</em> and <em>Sree</em>.
+        </p>
+        <p class="welcome-text soft">
+          With joyful hearts and the blessings of our families, we invite you to
+          celebrate the beginning of our next chapter — an evening of love, music,
+          food, family, and unforgettable memories.
+        </p>
+      </div>
+    </section>
+
+    <!-- COUNTDOWN -->
+    <section id="countdown" class="section section-sage">
+      <div class="container reveal">
+        <h2 class="section-title light" id="countdown-title">Until we celebrate together</h2>
+        <div class="countdown-grid" id="countdown-grid" role="timer" aria-live="off">
+          <div class="count-cell"><span class="count-num" id="cd-days">–</span><span class="count-label">Days</span></div>
+          <div class="count-cell"><span class="count-num" id="cd-hours">–</span><span class="count-label">Hours</span></div>
+          <div class="count-cell"><span class="count-num" id="cd-mins">–</span><span class="count-label">Minutes</span></div>
+          <div class="count-cell"><span class="count-num" id="cd-secs">–</span><span class="count-label">Seconds</span></div>
+        </div>
+        <p class="countdown-tag">A little love, a lot of laughter, and a lifetime ahead.</p>
+      </div>
+    </section>
+
+    <!-- OUR STORY -->
+    <section id="story" class="section section-ivory">
+      <div class="container">
+        <h2 class="section-title reveal">Our Story</h2>
+        <div class="timeline">
+          <div class="timeline-line" aria-hidden="true"></div>
+
+          <article class="story-card reveal">
+            <div class="story-dot" aria-hidden="true">❁</div>
+            <h3>How We Met</h3>
+            <p>Two paths, one city, and a conversation that neither of us wanted
+               to end. Some meetings simply feel like they were always meant to happen.</p>
+          </article>
+
+          <article class="story-card reveal">
+            <div class="story-dot" aria-hidden="true">❁</div>
+            <h3>Falling in Love</h3>
+            <p>From long drives and longer phone calls to becoming each other's
+               favourite person — every day together made the answer clearer.</p>
+          </article>
+
+          <article class="story-card reveal">
+            <div class="story-dot" aria-hidden="true">❁</div>
+            <h3>The Proposal</h3>
+            <p>One question, one yes, and two very happy families. The easiest
+               yes either of us has ever said.</p>
+          </article>
+
+          <article class="story-card reveal">
+            <div class="story-dot" aria-hidden="true">💍</div>
+            <h3>Engagement Day</h3>
+            <p>September 20, 2026 — the day we make it official, surrounded by
+               everyone we love. We hope that includes you.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <!-- EVENT DETAILS -->
+    <section id="details" class="section section-emerald">
+      <div class="container narrow">
+        <h2 class="section-title light reveal">Our Celebration</h2>
+        <div class="event-card reveal">
+          <div class="event-card-border" aria-hidden="true"></div>
+          <p class="event-kicker">Engagement Ceremony</p>
+          <p class="event-when">Sunday, September 20, 2026</p>
+          <p class="event-time">Guest arrival from 6:00 PM · Dinner to follow</p>
+          <div class="gold-rule" aria-hidden="true"><span>✦</span></div>
+          <p class="event-venue">Speranza Banquet Hall</p>
+          <p class="event-address">510 Deerhurst Dr, Brampton, ON L6T 5H9</p>
+          <div class="event-meta">
+            <span>✦ Dress code — Indian festive / formal</span>
+            <span>✦ Free parking on site</span>
+          </div>
+          <div class="event-actions">
+            <a class="btn btn-outline" target="_blank" rel="noopener"
+               href="https://www.google.com/maps/search/?api=1&query=Speranza+Banquet+Hall+510+Deerhurst+Dr+Brampton+ON+L6T+5H9">
+               📍 Open in Google Maps</a>
+            <button class="btn btn-outline" id="add-calendar">🗓 Add to Calendar</button>
+            <a class="btn btn-gold" href="#rsvp">RSVP</a>
+          </div>
+          <div class="calendar-menu" id="calendar-menu" hidden>
+            <a id="gcal-link" target="_blank" rel="noopener">Google Calendar</a>
+            <a id="ics-link" download="Mannat-and-Sree-Engagement.ics">Apple / Outlook (.ics)</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RSVP -->
+    <section id="rsvp" class="section section-ivory">
+      <div class="floral-corner tr" aria-hidden="true"></div>
+      <div class="container narrow">
+        <h2 class="section-title reveal">Will you be joining us?</h2>
+        <p class="section-sub reveal">Please RSVP and let us know who will be celebrating with you.</p>
+
+        <form id="rsvp-form" class="rsvp-form reveal" novalidate>
+          <label>
+            Your name <span class="req">*</span>
+            <input type="text" name="name" required autocomplete="name" placeholder="Full name" />
+          </label>
+
+          <fieldset class="attend-fieldset">
+            <legend>Will you attend? <span class="req">*</span></legend>
+            <div class="attend-options">
+              <label class="pill"><input type="radio" name="attending" value="Joyfully accepts" required /><span>💚 Joyfully accepts</span></label>
+              <label class="pill"><input type="radio" name="attending" value="Regretfully declines" /><span>🕊 Regretfully declines</span></label>
+            </div>
+          </fieldset>
+
+          <div id="attending-extra">
+            <label>
+              Number of guests (including you)
+              <input type="number" name="guests" min="1" max="10" value="1" inputmode="numeric" />
+            </label>
+            <label>
+              Names of accompanying guests
+              <input type="text" name="guest_names" placeholder="e.g. Simran, Arjun" />
+            </label>
+            <label>
+              Dietary restrictions
+              <input type="text" name="dietary" placeholder="Vegetarian, allergies, etc." />
+            </label>
+            <label>
+              🎵 Song request — help us build our celebration playlist!
+              <input type="text" name="song" placeholder="Punjabi, Bollywood, Malayalam… anything that gets you dancing" />
+            </label>
+          </div>
+
+          <label>
+            Phone number or email <span class="req">*</span>
+            <input type="text" name="contact" required placeholder="So we can confirm with you" />
+          </label>
+
+          <label>
+            A message for the couple
+            <textarea name="message" rows="3" placeholder="Your wishes for Mannat & Sree"></textarea>
+          </label>
+
+          <button type="submit" class="btn btn-gold btn-wide">
+            <span class="btn-shine" aria-hidden="true"></span>
+            Submit RSVP
+          </button>
+          <p class="form-error" id="form-error" hidden>Please fill in your name, attendance, and contact details.</p>
+        </form>
+
+        <div id="rsvp-thanks" class="rsvp-thanks" hidden>
+          <div class="thanks-ornament" aria-hidden="true">❦</div>
+          <h3>Thank you!</h3>
+          <p>Your RSVP has been received. We can't wait to celebrate with you. 💛</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- GALLERY -->
+    <section id="gallery" class="section section-sage-soft">
+      <div class="container">
+        <h2 class="section-title reveal">Moments</h2>
+        <p class="section-sub reveal">A few memories — with many more to come on the big day.</p>
+        <div class="gallery reveal">
+          <figure class="polaroid tilt-l" data-lightbox="assets/invitation.webp">
+            <img src="assets/invitation-med.jpg" alt="Mannat and Sree's engagement invitation" loading="lazy" />
+            <figcaption>Our invitation ✨</figcaption>
+          </figure>
+          <figure class="polaroid tilt-r placeholder">
+            <div class="ph-frame"><span>❁</span></div>
+            <figcaption>How we met — photo coming soon</figcaption>
+          </figure>
+          <figure class="polaroid tilt-l placeholder">
+            <div class="ph-frame"><span>❦</span></div>
+            <figcaption>The proposal — photo coming soon</figcaption>
+          </figure>
+          <figure class="polaroid tilt-r placeholder">
+            <div class="ph-frame"><span>✿</span></div>
+            <figcaption>Family — photo coming soon</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <!-- CLOSING -->
+    <section id="closing" class="section section-emerald closing">
+      <div class="container narrow reveal">
+        <div class="rings" aria-hidden="true"><span class="ring r1"></span><span class="ring r2"></span></div>
+        <h2 class="closing-title">We can't wait to celebrate with you</h2>
+        <p class="closing-sign">With love,</p>
+        <p class="closing-names">Mannat <span class="amp">&amp;</span> Sree</p>
+        <a href="#rsvp" class="btn btn-gold">Complete your RSVP</a>
+      </div>
+      <footer class="footer">
+        <p>Sunday, September 20, 2026 · 6:00 PM · Speranza Banquet Hall, Brampton, ON</p>
+      </footer>
+    </section>
+  </main>
+
+  <!-- Lightbox -->
+  <div id="lightbox" class="lightbox" hidden>
+    <button class="lightbox-close" aria-label="Close">✕</button>
+    <img alt="Enlarged photo" />
+  </div>
+
+  <!-- Floating controls -->
+  <div class="floating-controls" aria-hidden="true" id="floating-controls">
+    <button id="motion-toggle" class="float-btn" title="Reduce animations" aria-label="Toggle animations">✨</button>
+    <div class="music-widget" id="music-widget">
+      <button id="music-toggle" class="float-btn" title="Play / pause music" aria-label="Play or pause music">♪</button>
+      <div class="music-panel" id="music-panel" hidden>
+        <span class="music-title" id="music-title">Soft strings &amp; piano</span>
+        <input type="range" id="music-volume" min="0" max="100" value="55" aria-label="Music volume" />
+      </div>
+    </div>
+  </div>
+
+  <script src="js/main.js"></script>
+</body>
+</html>
