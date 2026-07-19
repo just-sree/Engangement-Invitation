@@ -37,13 +37,14 @@ const CONFIG = {
   rsvpEmail: "sreechackoth@gmail.com",
 
   // Background music, tried in this order:
-  // 1. youtubeId — streams the song through YouTube's official embedded
-  //    player (shown as a small docked video, as YouTube requires)
-  // 2. a file dropped at assets/music.mp3
+  // 1. a file dropped at assets/music.mp3 — pure audio, nothing visual
+  // 2. youtubeId — streams the song through YouTube's official embedded
+  //    player (YouTube's terms require the player to be visible, so it
+  //    shows as a tiny minimized dock the guest can expand)
   // 3. a soft built-in generative strings-and-piano ambience
-  youtubeId: "TVbI55pDdaI",
   musicFile: "assets/music.mp3",
-  musicTitle: "Our song 🎵",
+  youtubeId: "TVbI55pDdaI",
+  musicTitle: "Aamir Mir — Tu Hai Toh",
 };
 
 const $ = (sel) => document.querySelector(sel);
@@ -398,6 +399,20 @@ const music = (() => {
   panel.addEventListener("pointerenter", () => clearTimeout(panelTimer));
   panel.addEventListener("pointerleave", peekPanel);
 
+  $("#yt-min").addEventListener("click", (e) => {
+    $("#yt-dock").classList.toggle("min");
+    e.currentTarget.textContent = $("#yt-dock").classList.contains("min") ? "⤢" : "–";
+  });
+
+  // last-resort ambience, used when no other source is available
+  function startGeneratedFallback() {
+    if (mode) return;
+    mode = "generated";
+    play();
+    wasPlaying = true;
+    peekPanel();
+  }
+
   // -- generative fallback: slow Pachelbel-ish progression on soft sines
   const PROGRESSION = [
     [261.63, 329.63, 392.0],   // C
@@ -516,8 +531,8 @@ const music = (() => {
     }
   });
 
-  // Preferred: stream the couple's song via YouTube's official embed
-  // (docked as a small visible player). Falls back to startFile on
+  // Stream the couple's song via YouTube's official embed (docked as a
+  // small minimized player). Falls back to the generated ambience on
   // any failure — API blocked, video unavailable, etc.
   function tryYouTube() {
     const dock = $("#yt-dock");
@@ -526,7 +541,7 @@ const music = (() => {
       if (settled) return;
       settled = true;
       dock.hidden = true;
-      startFile();
+      startGeneratedFallback();
     };
     const failTimer = setTimeout(fail, 6000);
 
@@ -576,8 +591,16 @@ const music = (() => {
     document.head.appendChild(tag);
   }
 
-  // Next best: a local audio file; last resort: generated ambience.
+  // Preferred: a local audio file (pure audio, no video element).
+  // Missing file → YouTube embed → generated ambience.
   function startFile() {
+    let advanced = false;
+    const next = () => {
+      if (mode || advanced) return;
+      advanced = true;
+      if (CONFIG.youtubeId) tryYouTube();
+      else startGeneratedFallback();
+    };
     const el = new Audio(CONFIG.musicFile);
     el.loop = true;
     el.volume = volume;
@@ -590,29 +613,15 @@ const music = (() => {
       wasPlaying = true;
       peekPanel();
     }, { once: true });
-    el.addEventListener("error", () => {
-      if (mode) return;
-      mode = "generated";
-      play();
-      wasPlaying = true;
-      peekPanel();
-    }, { once: true });
+    el.addEventListener("error", next, { once: true });
     el.load();
-    // safety: if neither event fires quickly, use generated
-    setTimeout(() => {
-      if (!mode) {
-        mode = "generated";
-        play();
-        wasPlaying = true;
-        peekPanel();
-      }
-    }, 2500);
+    // safety: if neither event fires quickly, move on
+    setTimeout(next, 2500);
   }
 
   return {
     start() {
-      if (CONFIG.youtubeId) tryYouTube();
-      else startFile();
+      startFile();
     },
   };
 })();

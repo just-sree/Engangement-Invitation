@@ -57,12 +57,12 @@ All knobs live at the top of `js/main.js` in the `CONFIG` object:
 
 Background music is tried in this order (see `CONFIG` in `js/main.js`):
 
-1. **YouTube** — `youtubeId` streams the couple's song through YouTube's
-   official embedded player, shown as a small docked video (YouTube's terms
-   require the player to be visible; this also keeps the song properly
-   licensed). Set `musicTitle` to the song's name.
-2. **Local file** — drop a track you have permission to use at
-   `assets/music.mp3`.
+1. **Local file** — drop a track you have permission to use at
+   `assets/music.mp3`. Pure audio: no video element appears anywhere.
+2. **YouTube** — `youtubeId` streams "Aamir Mir — Tu Hai Toh" through
+   YouTube's official embedded player. YouTube's terms require the player
+   to be visible, so it appears as a tiny minimized dock (⤢ expands it);
+   this also keeps the song properly licensed.
 3. **Built-in ambience** — a soft generative strings-and-piano loop.
 
 The ♪ button and volume slider control whichever source is active, and
