@@ -149,18 +149,46 @@ const petals = (() => {
       ctx.restore();
     }
 
-    // one-shot celebration burst (petals + gold confetti + sparks)
+    // one-shot celebration burst (flash + shockwave + petals + confetti)
     if (burstParts.length) {
       const gravity = 0.12 * devicePixelRatio;
       burstParts = burstParts.filter((p) => p.life > 0);
       for (const p of burstParts) {
-        p.vx *= 0.985;
-        p.vy = p.vy * 0.99 + gravity;
+        p.life -= p.decay;
+        if (p.kind === "flash") {
+          const r = (1.05 - p.life) * 260 * devicePixelRatio;
+          ctx.save();
+          const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r);
+          glow.addColorStop(0, `rgba(249,240,215,${0.75 * Math.max(p.life, 0)})`);
+          glow.addColorStop(1, "rgba(249,240,215,0)");
+          ctx.fillStyle = glow;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, r, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+          continue;
+        }
+        if (p.kind === "shock") {
+          p.r += p.vr;
+          p.vr *= 0.94;
+          ctx.save();
+          ctx.globalAlpha = Math.max(p.life, 0) * 0.85;
+          ctx.strokeStyle = "#f3e7c8";
+          ctx.lineWidth = (0.5 + 3 * Math.max(p.life, 0)) * devicePixelRatio;
+          ctx.shadowColor = "#e9d29a";
+          ctx.shadowBlur = 14 * devicePixelRatio;
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+          ctx.stroke();
+          ctx.restore();
+          continue;
+        }
+        p.vx *= 0.988;
+        p.vy = p.vy * 0.992 + gravity;
         p.sway += 0.1;
         p.x += p.vx + Math.sin(p.sway) * 0.4 * devicePixelRatio;
         p.y += p.vy;
         p.angle += p.spin;
-        p.life -= p.decay;
         ctx.save();
         ctx.translate(p.x, p.y);
         ctx.globalAlpha = Math.max(p.life, 0);
@@ -207,30 +235,43 @@ const petals = (() => {
       if (motionOff) return;
       const x = cx * devicePixelRatio;
       const y = cy * devicePixelRatio;
-      const n = window.innerWidth < 600 ? 110 : 170;
-      for (let i = 0; i < n; i++) {
-        const roll = Math.random();
-        const angle = Math.random() * Math.PI * 2;
-        const speed = (3.5 + Math.random() * 10) * devicePixelRatio;
-        burstParts.push({
-          kind: roll < 0.45 ? "petal" : roll < 0.82 ? "confetti" : "spark",
-          x, y,
-          vx: Math.cos(angle) * speed,
-          vy: Math.sin(angle) * speed - 2.5 * devicePixelRatio,
-          angle: Math.random() * Math.PI * 2,
-          spin: (Math.random() - 0.5) * 0.35,
-          sway: Math.random() * Math.PI * 2,
-          life: 1,
-          decay: 0.007 + Math.random() * 0.009,
-          size: (roll < 0.45 ? 5 + Math.random() * 6 : 4 + Math.random() * 5) * devicePixelRatio,
-          color: roll < 0.45
-            ? PETAL_COLORS[(Math.random() * PETAL_COLORS.length) | 0]
-            : CONFETTI_COLORS[(Math.random() * CONFETTI_COLORS.length) | 0],
-        });
-      }
+      const throwParticles = (count, minSpeed, speedRange) => {
+        for (let i = 0; i < count; i++) {
+          const roll = Math.random();
+          const angle = Math.random() * Math.PI * 2;
+          const speed = (minSpeed + Math.random() * speedRange) * devicePixelRatio;
+          burstParts.push({
+            kind: roll < 0.45 ? "petal" : roll < 0.82 ? "confetti" : "spark",
+            x, y,
+            vx: Math.cos(angle) * speed,
+            vy: Math.sin(angle) * speed - 3.5 * devicePixelRatio,
+            angle: Math.random() * Math.PI * 2,
+            spin: (Math.random() - 0.5) * 0.4,
+            sway: Math.random() * Math.PI * 2,
+            life: 1,
+            decay: 0.006 + Math.random() * 0.011,
+            size: (roll < 0.45 ? 5 + Math.random() * 7 : 4 + Math.random() * 6) * devicePixelRatio,
+            color: roll < 0.45
+              ? PETAL_COLORS[(Math.random() * PETAL_COLORS.length) | 0]
+              : CONFETTI_COLORS[(Math.random() * CONFETTI_COLORS.length) | 0],
+          });
+        }
+      };
+
+      const n = window.innerWidth < 600 ? 180 : 280;
+      throwParticles(n, 5, 16);
+      burstParts.push({ kind: "flash", x, y, life: 1, decay: 0.06 });
+      burstParts.push({ kind: "shock", x, y, r: 0, vr: 16 * devicePixelRatio, life: 1, decay: 0.028 });
+      // second crackle wave right behind the first
+      setTimeout(() => {
+        if (motionOff) return;
+        throwParticles(Math.round(n / 3), 9, 14);
+        burstParts.push({ kind: "shock", x, y, r: 0, vr: 20 * devicePixelRatio, life: 0.8, decay: 0.032 });
+      }, 150);
+
       // lift the canvas above the doors while the burst plays
       canvas.classList.add("burst");
-      setTimeout(() => canvas.classList.remove("burst"), 2500);
+      setTimeout(() => canvas.classList.remove("burst"), 2600);
     },
   };
 })();
