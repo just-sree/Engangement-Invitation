@@ -10,11 +10,30 @@ const CONFIG = {
   eventDate: new Date("2026-09-20T18:00:00-04:00"),
   eventEnd: new Date("2026-09-20T23:00:00-04:00"),
 
-  // Where RSVPs go. Leave "" to fall back to opening the guest's
-  // email app with a pre-filled RSVP addressed to rsvpEmail.
-  // To collect RSVPs in a Google Sheet: create a Google Apps Script
-  // web app (or a Formspree/Basin endpoint) and paste its URL here.
+  // RSVPs are submitted quietly into this Google Form (guests only ever
+  // see the styled form on the site). The entry IDs come from the form's
+  // pre-filled link: Google Form editor → ⋮ → "Get pre-filled link" →
+  // fill in sample answers → copy link → the URL contains entry.NNNN=…
+  // pairs. Paste each entry.NNNN below next to the matching field.
+  googleForm: {
+    action:
+      "https://docs.google.com/forms/d/e/1FAIpQLSeZAHSJiYR4RL0wu2pb-ur4_h7KRZPCMb6k0kROhdx8bDjjRw/formResponse",
+    fields: {
+      name: "",        // e.g. "entry.123456789"
+      attending: "",
+      guests: "",
+      guest_names: "",
+      dietary: "",
+      song: "",
+      contact: "",
+      message: "",
+    },
+  },
+
+  // Optional custom endpoint (Apps Script web app, Formspree, etc.).
+  // Tried after the Google Form; leave "" to skip.
   rsvpEndpoint: "",
+  // Last resort: opens the guest's email app pre-filled to this address.
   rsvpEmail: "sreechackoth@gmail.com",
 
   // Background music, tried in this order:
@@ -276,7 +295,26 @@ $$(".reveal").forEach((el) => io.observe(el));
     btn.textContent = "Sending…";
 
     let delivered = false;
-    if (CONFIG.rsvpEndpoint) {
+
+    // 1. Google Form (invisible to guests) — needs entry IDs configured
+    const gf = CONFIG.googleForm;
+    if (gf.action && gf.fields.name) {
+      try {
+        const fd = new FormData();
+        for (const [key, entryId] of Object.entries(gf.fields)) {
+          if (entryId && data[key] != null && data[key] !== "") {
+            fd.append(entryId, data[key]);
+          }
+        }
+        await fetch(gf.action, { method: "POST", mode: "no-cors", body: fd });
+        delivered = true;
+      } catch {
+        /* fall through */
+      }
+    }
+
+    // 2. Custom endpoint, if configured
+    if (!delivered && CONFIG.rsvpEndpoint) {
       try {
         await fetch(CONFIG.rsvpEndpoint, {
           method: "POST",
@@ -290,6 +328,7 @@ $$(".reveal").forEach((el) => io.observe(el));
       }
     }
 
+    // 3. Last resort: pre-filled email
     if (!delivered) {
       const lines = [
         `RSVP — Mannat & Sree's Engagement`,

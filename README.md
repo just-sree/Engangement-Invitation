@@ -68,18 +68,28 @@ Background music is tried in this order (see `CONFIG` in `js/main.js`):
 The ♪ button and volume slider control whichever source is active, and
 music auto-pauses when the browser tab is hidden.
 
-### Collecting RSVPs in a Google Sheet
+### Collecting RSVPs in your Google Form
 
-1. Create a Google Sheet with a header row: `submitted, name, attending,
-   guests, guest_names, dietary, song, contact, message`.
-2. Extensions → Apps Script, paste a small `doPost(e)` handler that appends
-   `JSON.parse(e.postData.contents)` to the sheet, and deploy as a
-   **Web app** (execute as *Me*, access: *Anyone*).
-3. Paste the web-app URL into `CONFIG.rsvpEndpoint`.
+The site's styled RSVP form submits quietly into the couple's Google Form
+(`CONFIG.googleForm` in `js/main.js`) — guests never see the Google Form.
+To finish the wiring, the numeric entry IDs are needed:
 
-Formspree, Basin, Airtable, or Supabase endpoints work the same way.
-If no endpoint is set, submissions fall back to opening the guest's email
-app with a pre-filled RSVP.
+1. Open the Google Form **editor** → ⋮ menu → **Get pre-filled link**.
+2. Type a sample answer in every question and click **Get link** → **Copy link**.
+3. The copied URL contains `entry.NNNNNNN=answer` pairs, one per question.
+   Paste each `entry.NNNNNNN` into the matching field in
+   `CONFIG.googleForm.fields`.
+
+Two form settings matter: in the Google Form's Settings, turn **off**
+"Limit to 1 response" and "Restrict to users in …" (both force guests to
+sign in to Google, which breaks quiet submission). For the *Will you
+attend?* question, the site sends the texts "Joyfully accepts" /
+"Regretfully declines" — either make that a short-answer question in the
+Google Form, or use those exact texts as the multiple-choice options.
+
+If the Google Form IDs aren't configured, submissions fall back to
+`CONFIG.rsvpEndpoint` (Apps Script/Formspree/etc.), and finally to opening
+the guest's email app pre-filled to `CONFIG.rsvpEmail`.
 
 ### Updating text & photos
 
