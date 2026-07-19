@@ -64,7 +64,7 @@ if (motionOff) document.body.classList.add("no-motion");
 const opening = $("#opening");
 const site = $("#site");
 
-$("#open-invite").addEventListener("click", () => {
+$("#open-invite").addEventListener("click", (e) => {
   opening.classList.add("open");
   site.setAttribute("aria-hidden", "false");
   site.classList.add("shown");
@@ -74,6 +74,8 @@ $("#open-invite").addEventListener("click", () => {
 
   music.start();          // user gesture → audio is allowed
   petals.start();
+  const r = e.currentTarget.getBoundingClientRect();
+  petals.burst(r.left + r.width / 2, r.top + r.height / 2);
   animateNames();
   setTimeout(() => opening.remove(), 2600);
 });
@@ -84,9 +86,10 @@ $("#open-invite").addEventListener("click", () => {
 const petals = (() => {
   const canvas = $("#petals");
   const ctx = canvas.getContext("2d");
-  let W, H, parts = [], running = false, raf;
+  let W, H, parts = [], burstParts = [], running = false, raf;
 
   const PETAL_COLORS = ["#b8c2a7", "#a9b49a", "#cfd7bf", "#e9d29a"];
+  const CONFETTI_COLORS = ["#e9d29a", "#c9a24b", "#b18a35", "#f3e7c8", "#f9f5ec"];
 
   function resize() {
     W = canvas.width = window.innerWidth * devicePixelRatio;
@@ -145,6 +148,43 @@ const petals = (() => {
       }
       ctx.restore();
     }
+
+    // one-shot celebration burst (petals + gold confetti + sparks)
+    if (burstParts.length) {
+      const gravity = 0.12 * devicePixelRatio;
+      burstParts = burstParts.filter((p) => p.life > 0);
+      for (const p of burstParts) {
+        p.vx *= 0.985;
+        p.vy = p.vy * 0.99 + gravity;
+        p.sway += 0.1;
+        p.x += p.vx + Math.sin(p.sway) * 0.4 * devicePixelRatio;
+        p.y += p.vy;
+        p.angle += p.spin;
+        p.life -= p.decay;
+        ctx.save();
+        ctx.translate(p.x, p.y);
+        ctx.globalAlpha = Math.max(p.life, 0);
+        ctx.rotate(p.angle);
+        if (p.kind === "petal") {
+          ctx.fillStyle = p.color;
+          ctx.beginPath();
+          ctx.ellipse(0, 0, p.size, p.size * 0.45, 0, 0, Math.PI * 2);
+          ctx.fill();
+        } else if (p.kind === "confetti") {
+          ctx.fillStyle = p.color;
+          ctx.scale(1, 0.4 + 0.6 * Math.abs(Math.sin(p.sway * 1.6)));
+          ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+        } else {
+          ctx.fillStyle = "#e9d29a";
+          ctx.shadowColor = "#c9a24b";
+          ctx.shadowBlur = 10 * devicePixelRatio;
+          ctx.beginPath();
+          ctx.arc(0, 0, p.size * 0.4, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+      }
+    }
     raf = requestAnimationFrame(draw);
   }
 
@@ -158,8 +198,39 @@ const petals = (() => {
     },
     stop() {
       running = false;
+      burstParts = [];
       cancelAnimationFrame(raf);
       ctx.clearRect(0, 0, W, H);
+    },
+    // explosion of petals and gold confetti from (cx, cy) in CSS pixels
+    burst(cx, cy) {
+      if (motionOff) return;
+      const x = cx * devicePixelRatio;
+      const y = cy * devicePixelRatio;
+      const n = window.innerWidth < 600 ? 110 : 170;
+      for (let i = 0; i < n; i++) {
+        const roll = Math.random();
+        const angle = Math.random() * Math.PI * 2;
+        const speed = (3.5 + Math.random() * 10) * devicePixelRatio;
+        burstParts.push({
+          kind: roll < 0.45 ? "petal" : roll < 0.82 ? "confetti" : "spark",
+          x, y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed - 2.5 * devicePixelRatio,
+          angle: Math.random() * Math.PI * 2,
+          spin: (Math.random() - 0.5) * 0.35,
+          sway: Math.random() * Math.PI * 2,
+          life: 1,
+          decay: 0.007 + Math.random() * 0.009,
+          size: (roll < 0.45 ? 5 + Math.random() * 6 : 4 + Math.random() * 5) * devicePixelRatio,
+          color: roll < 0.45
+            ? PETAL_COLORS[(Math.random() * PETAL_COLORS.length) | 0]
+            : CONFETTI_COLORS[(Math.random() * CONFETTI_COLORS.length) | 0],
+        });
+      }
+      // lift the canvas above the doors while the burst plays
+      canvas.classList.add("burst");
+      setTimeout(() => canvas.classList.remove("burst"), 2500);
     },
   };
 })();
@@ -370,18 +441,6 @@ const music = (() => {
   let mode = null;         // "file" | "generated"
 
   const toggleBtn = $("#music-toggle");
-  const panel = $("#music-panel");
-  const volSlider = $("#music-volume");
-  let panelTimer = null;
-
-  // show the volume panel briefly, then tuck it away
-  function peekPanel() {
-    panel.hidden = false;
-    clearTimeout(panelTimer);
-    panelTimer = setTimeout(() => (panel.hidden = true), 5000);
-  }
-  panel.addEventListener("pointerenter", () => clearTimeout(panelTimer));
-  panel.addEventListener("pointerleave", peekPanel);
 
   // last-resort ambience, used when no other source is available
   function startGeneratedFallback() {
@@ -389,7 +448,6 @@ const music = (() => {
     mode = "generated";
     play();
     wasPlaying = true;
-    peekPanel();
   }
 
   // -- generative fallback: slow Pachelbel-ish progression on soft sines
@@ -455,7 +513,8 @@ const music = (() => {
   function updateUI() {
     toggleBtn.classList.toggle("playing", playing);
     toggleBtn.textContent = playing ? "♪" : "𝄽";
-    toggleBtn.title = playing ? "Pause music" : "Play music";
+    toggleBtn.title =
+      (playing ? "Pause — " : "Play — ") + CONFIG.musicTitle;
   }
 
   function play() {
@@ -481,15 +540,8 @@ const music = (() => {
 
   toggleBtn.addEventListener("click", () => {
     if (!mode) return;
-    peekPanel();
     playing ? pause() : play();
     wasPlaying = playing;
-  });
-
-  volSlider.addEventListener("input", () => {
-    volume = volSlider.value / 100;
-    if (audioEl) audioEl.volume = volume;
-    if (master) master.gain.value = volume;
   });
 
   // auto-mute when the tab is hidden, resume when it returns
@@ -518,10 +570,8 @@ const music = (() => {
       if (mode) return;
       mode = "file";
       audioEl = el;
-      $("#music-title").textContent = CONFIG.musicTitle;
       play();
       wasPlaying = true;
-      peekPanel();
     }, { once: true });
     el.addEventListener("error", next, { once: true });
     el.load();

@@ -308,6 +308,7 @@ img { max-width: 100%; display: block; }
   position: fixed; inset: 0; z-index: 40;
   pointer-events: none;
 }
+#petals.burst { z-index: 65; } /* above the doors while the burst plays */
 
 /* ═════════════ MAIN / HERO ═════════════ */
 
@@ -563,17 +564,26 @@ img { max-width: 100%; display: block; }
 /* ═════════════ CLOSING ═════════════ */
 
 .closing { text-align: center; padding-bottom: 0; }
-.rings { position: relative; height: 74px; margin-bottom: 1.4rem; }
-.ring {
-  position: absolute; top: 10px; left: 50%;
-  width: 46px; height: 46px; border-radius: 50%;
-  border: 3.5px solid var(--gold);
-  box-shadow: 0 0 18px rgba(201, 162, 75, 0.45), inset 0 0 8px rgba(201,162,75,0.3);
+
+/* infinity symbol that draws itself in, then glows */
+.infinity { display: flex; justify-content: center; margin-bottom: 1.2rem; }
+.infinity svg { width: 150px; height: 75px; overflow: visible; }
+.infinity-path {
+  fill: none; stroke: var(--gold);
+  stroke-width: 3.5; stroke-linecap: round;
+  stroke-dasharray: 300; stroke-dashoffset: 300;
+  filter: drop-shadow(0 0 8px rgba(201, 162, 75, 0.5));
 }
-.ring.r1 { transform: translateX(-88%) rotate(-12deg); animation: ring-l 3.2s ease-in-out infinite; }
-.ring.r2 { transform: translateX(-12%) rotate(12deg); animation: ring-r 3.2s ease-in-out infinite; }
-@keyframes ring-l { 0%,100% { transform: translateX(-88%) rotate(-12deg); } 50% { transform: translateX(-72%) rotate(-4deg); } }
-@keyframes ring-r { 0%,100% { transform: translateX(-12%) rotate(12deg); } 50% { transform: translateX(-28%) rotate(4deg); } }
+.reveal.in .infinity-path {
+  animation:
+    inf-draw 2.6s ease forwards,
+    inf-pulse 3.4s ease-in-out 2.6s infinite;
+}
+@keyframes inf-draw { to { stroke-dashoffset: 0; } }
+@keyframes inf-pulse {
+  0%, 100% { filter: drop-shadow(0 0 6px rgba(201, 162, 75, 0.4)); }
+  50% { filter: drop-shadow(0 0 16px rgba(233, 210, 154, 0.85)); }
+}
 
 .closing-title {
   font-family: var(--serif); font-weight: 500;
@@ -614,15 +624,6 @@ img { max-width: 100%; display: block; }
 #music-toggle.playing { animation: pulse 2.4s ease-in-out infinite; }
 @keyframes pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(201,162,75,0.5); } 50% { box-shadow: 0 0 0 10px rgba(201,162,75,0); } }
 
-.music-widget { display: flex; align-items: center; gap: 0.6rem; flex-direction: row-reverse; }
-.music-panel {
-  display: flex; align-items: center; gap: 0.7rem;
-  background: rgba(29, 51, 39, 0.9); border: 1px solid rgba(201,162,75,0.5);
-  border-radius: 999px; padding: 0.45rem 1rem;
-  backdrop-filter: blur(4px);
-}
-.music-title { font-size: 0.78rem; color: var(--gold-pale); white-space: nowrap; letter-spacing: 0.05em; }
-#music-volume { width: 84px; accent-color: var(--gold); }
 
 /* ═════════════ SCROLL REVEALS ═════════════ */
 
@@ -642,6 +643,7 @@ body.no-motion .reveal { opacity: 1; transform: none; }
 body.no-motion #petals { display: none; }
 body.no-motion .script-name .ltr { opacity: 1; transform: none; }
 body.no-motion .opening-content > *, body.no-motion .op-seal { opacity: 1; }
+body.no-motion .infinity-path { stroke-dashoffset: 0; }
 
 /* ═════════════ SMALL SCREENS ═════════════ */
 
@@ -654,5 +656,4 @@ body.no-motion .opening-content > *, body.no-motion .op-seal { opacity: 1; }
   .polaroid.wide { width: 78vw; }
   .polaroid figcaption { font-size: 0.78rem; }
   .event-actions .btn { width: 100%; }
-  .music-panel { position: fixed; bottom: 4.6rem; right: 1.1rem; }
 }

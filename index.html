@@ -262,7 +262,12 @@
     <!-- CLOSING -->
     <section id="closing" class="section section-emerald closing">
       <div class="container narrow reveal">
-        <div class="rings" aria-hidden="true"><span class="ring r1"></span><span class="ring r2"></span></div>
+        <div class="infinity" aria-hidden="true">
+          <svg viewBox="0 0 120 60">
+            <path class="infinity-path" pathLength="300"
+              d="M30,30 C30,15 50,15 60,30 C70,45 90,45 90,30 C90,15 70,15 60,30 C50,45 30,45 30,30 Z" />
+          </svg>
+        </div>
         <h2 class="closing-title">We can't wait to celebrate with you</h2>
         <p class="closing-sign">With love,</p>
         <p class="closing-names">Mannat <span class="amp">&amp;</span> Sree</p>
@@ -277,13 +282,7 @@
   <!-- Floating controls -->
   <div class="floating-controls" aria-hidden="true" id="floating-controls">
     <button id="motion-toggle" class="float-btn" title="Reduce animations" aria-label="Toggle animations">✨</button>
-    <div class="music-widget" id="music-widget">
-      <button id="music-toggle" class="float-btn" title="Play / pause music" aria-label="Play or pause music">♪</button>
-      <div class="music-panel" id="music-panel" hidden>
-        <span class="music-title" id="music-title">Soft strings &amp; piano</span>
-        <input type="range" id="music-volume" min="0" max="100" value="55" aria-label="Music volume" />
-      </div>
-    </div>
+    <button id="music-toggle" class="float-btn" title="Play / pause music" aria-label="Play or pause music">♪</button>
   </div>
 
   <script src="js/main.js"></script>

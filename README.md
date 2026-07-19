@@ -57,8 +57,9 @@ All knobs live at the top of `js/main.js` in the `CONFIG` object:
 Background music is "Aamir Mir — Tu Hai Toh", played from
 `assets/music.mp3` (make sure you have permission to use the recording
 publicly). If the file can't load, a soft generative strings-and-piano
-ambience plays instead. Swap the song by replacing the file and updating
-`musicTitle` in `CONFIG` (`js/main.js`).
+ambience plays instead. The floating ♪ button toggles playback, and music
+auto-pauses when the tab is hidden. Swap the song by replacing the file
+and updating `musicTitle` in `CONFIG` (`js/main.js`).
 
 The ♪ button and volume slider control whichever source is active, and
 music auto-pauses when the browser tab is hidden.
