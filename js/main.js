@@ -357,24 +357,7 @@ $$(".reveal").forEach((el) => io.observe(el));
 })();
 
 // ------------------------------------------------------------------
-// 8. Gallery lightbox
-// ------------------------------------------------------------------
-(() => {
-  const lb = $("#lightbox");
-  const img = lb.querySelector("img");
-  $$("[data-lightbox]").forEach((fig) =>
-    fig.addEventListener("click", () => {
-      img.src = fig.dataset.lightbox;
-      lb.hidden = false;
-    })
-  );
-  const close = () => (lb.hidden = true);
-  lb.addEventListener("click", close);
-  document.addEventListener("keydown", (e) => e.key === "Escape" && close());
-})();
-
-// ------------------------------------------------------------------
-// 9. Music — mp3 if provided, otherwise gentle generative ambience
+// 8. Music — mp3 if provided, otherwise gentle generative ambience
 // ------------------------------------------------------------------
 const music = (() => {
   let audioEl = null;      // <audio> path
@@ -554,7 +537,7 @@ const music = (() => {
 })();
 
 // ------------------------------------------------------------------
-// 10. Animation on/off toggle
+// 9. Animation on/off toggle
 // ------------------------------------------------------------------
 $("#motion-toggle").addEventListener("click", (e) => {
   motionOff = !motionOff;

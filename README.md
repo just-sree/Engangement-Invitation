@@ -13,7 +13,6 @@ A one-page animated invitation website for Mannat & Sree's engagement.
 - 📖 "Our Story" scroll timeline
 - 📍 Event card with Google Maps, Google Calendar, and Apple/Outlook (.ics) buttons
 - 📝 Custom RSVP form (guests, song requests, messages)
-- 🖼 Polaroid photo gallery with lightbox
 - 🎵 Music player — plays `assets/music.mp3` if present, otherwise a soft
   built-in generative strings-and-piano ambience; auto-mutes when the tab is hidden
 - ♿ Animation on/off toggle + respects `prefers-reduced-motion`
@@ -90,8 +89,6 @@ opening the guest's email app pre-filled to `CONFIG.rsvpEmail`.
 ### Updating text & photos
 
 - Story moments: edit the four `.story-card` blocks in `index.html`.
-- Photos: replace the three placeholder polaroids in the gallery section
-  with `<img>` tags (add `data-lightbox="path"` for tap-to-enlarge).
 - Family welcome message: `#welcome` section.
 
 ## Ideas for v2
