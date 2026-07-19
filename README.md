@@ -12,7 +12,7 @@ A one-page animated invitation website for Mannat & Sree's engagement.
 - ⏳ Live countdown (switches to a thank-you message after the big day)
 - 📖 "Our Story" scroll timeline
 - 📍 Event card with Google Maps, Google Calendar, and Apple/Outlook (.ics) buttons
-- 📝 Custom RSVP form (guests, dietary needs, song requests, messages)
+- 📝 Custom RSVP form (guests, song requests, messages)
 - 🖼 Polaroid photo gallery with lightbox
 - 🎵 Music player — plays `assets/music.mp3` if present, otherwise a soft
   built-in generative strings-and-piano ambience; auto-mutes when the tab is hidden

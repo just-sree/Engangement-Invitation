@@ -20,13 +20,20 @@ const CONFIG = {
       "https://docs.google.com/forms/d/e/1FAIpQLSeZAHSJiYR4RL0wu2pb-ur4_h7KRZPCMb6k0kROhdx8bDjjRw/formResponse",
     fields: {
       name: "",        // e.g. "entry.123456789"
-      attending: "",
-      guests: "",
+      attending: "entry.877086558",
+      guests: "entry.1498135098",
       guest_names: "",
-      dietary: "",
       song: "",
       contact: "",
       message: "",
+    },
+    // The site's internal answer → the Google Form's exact option text.
+    // The "Regretfully declines" mapping needs the form's No option text.
+    valueMap: {
+      attending: {
+        "Joyfully accepts": "Yes,  I'll be there",
+        "Regretfully declines": "",
+      },
     },
   },
 
@@ -299,7 +306,8 @@ $$(".reveal").forEach((el) => io.observe(el));
         const fd = new FormData();
         for (const [key, entryId] of Object.entries(gf.fields)) {
           if (entryId && data[key] != null && data[key] !== "") {
-            fd.append(entryId, data[key]);
+            const mapped = gf.valueMap?.[key]?.[data[key]] ?? data[key];
+            if (mapped !== "") fd.append(entryId, mapped);
           }
         }
         await fetch(gf.action, { method: "POST", mode: "no-cors", body: fd });
@@ -332,7 +340,7 @@ $$(".reveal").forEach((el) => io.observe(el));
         `Name: ${data.name}`,
         `Attending: ${data.attending}`,
         data.attending !== "Regretfully declines"
-          ? `Guests: ${data.guests || 1}\nGuest names: ${data.guest_names || "—"}\nDietary: ${data.dietary || "—"}\nSong request: ${data.song || "—"}`
+          ? `Guests: ${data.guests || 1}\nGuest names: ${data.guest_names || "—"}\nSong request: ${data.song || "—"}`
           : null,
         `Contact: ${data.contact}`,
         `Message: ${data.message || "—"}`,
