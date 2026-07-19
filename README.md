@@ -78,11 +78,10 @@ Two caveats:
 - In the Google Form's Settings, keep **"Limit to 1 response" off** and
   don't restrict responses to signed-in users — both would break quiet
   submission from the site.
-- Choice answers must match the form's option text letter-for-letter.
-  The "Yes,  I'll be there" option is wired up; the decline option's
-  exact text still needs to be filled in where the TODO marks it (until
-  then, declines are recorded via a "(Regretfully declines)" note in the
-  message field).
+- Choice answers must match the form's option text letter-for-letter:
+  "Yes,  I'll be there" and "Sadly, I won't be able to attend" are both
+  wired up. If the option wording in the Google Form ever changes,
+  update `build()` to match.
 
 If the Google submission fails, the site falls back to
 `CONFIG.rsvpEndpoint` (Apps Script/Formspree/etc.) if set, and finally to

@@ -22,16 +22,14 @@ const CONFIG = {
     // Choice answers must match the form's option text letter-for-letter.
     build(data) {
       const out = {};
-      if (data.attending === "Joyfully accepts") {
-        out["entry.877086558"] = "Yes,  I'll be there";
-      }
-      // TODO: when the form's "No" option text is known, submit it here.
       const declining = data.attending === "Regretfully declines";
+      out["entry.877086558"] = declining
+        ? "Sadly, I won't be able to attend"
+        : "Yes,  I'll be there";
       const names = [data.name, data.guest_names].filter(Boolean).join(", ");
       if (names) out["entry.460312198"] = names;
       if (!declining && data.guests) out["entry.1498135098"] = data.guests;
       const extras = [
-        declining ? "(Regretfully declines)" : "",
         data.message,
         data.song ? "Song request: " + data.song : "",
         data.contact ? "Contact: " + data.contact : "",
