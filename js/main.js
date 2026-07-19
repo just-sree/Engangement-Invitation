@@ -156,7 +156,7 @@ const petals = (() => {
       for (const p of burstParts) {
         p.life -= p.decay;
         if (p.kind === "flash") {
-          const r = (1.05 - p.life) * 260 * devicePixelRatio;
+          const r = (1.05 - p.life) * 260 * devicePixelRatio * (p.scale || 1);
           ctx.save();
           const glow = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, r);
           glow.addColorStop(0, `rgba(249,240,215,${0.75 * Math.max(p.life, 0)})`);
@@ -202,6 +202,18 @@ const petals = (() => {
           ctx.fillStyle = p.color;
           ctx.scale(1, 0.4 + 0.6 * Math.abs(Math.sin(p.sway * 1.6)));
           ctx.fillRect(-p.size / 2, -p.size / 4, p.size, p.size / 2);
+        } else if (p.kind === "streamer") {
+          ctx.fillStyle = p.color;
+          ctx.scale(1, 0.5 + 0.5 * Math.abs(Math.sin(p.sway * 1.3)));
+          ctx.fillRect(-p.size * 1.6, -p.size * 0.18, p.size * 3.2, p.size * 0.36);
+        } else if (p.kind === "heart") {
+          ctx.fillStyle = p.color;
+          const s = p.size * 0.9;
+          ctx.beginPath();
+          ctx.moveTo(0, -s * 0.25);
+          ctx.bezierCurveTo(s * 0.55, -s * 0.8, s * 1.1, 0, 0, s * 0.7);
+          ctx.bezierCurveTo(-s * 1.1, 0, -s * 0.55, -s * 0.8, 0, -s * 0.25);
+          ctx.fill();
         } else {
           ctx.fillStyle = "#e9d29a";
           ctx.shadowColor = "#c9a24b";
@@ -230,48 +242,75 @@ const petals = (() => {
       cancelAnimationFrame(raf);
       ctx.clearRect(0, 0, W, H);
     },
-    // explosion of petals and gold confetti from (cx, cy) in CSS pixels
+    // fireworks finale: main explosion at (cx, cy) in CSS pixels, then
+    // satellite bursts around the screen while the doors open
     burst(cx, cy) {
       if (motionOff) return;
-      const x = cx * devicePixelRatio;
-      const y = cy * devicePixelRatio;
-      const throwParticles = (count, minSpeed, speedRange) => {
+      const dpr = devicePixelRatio;
+
+      const throwParticles = (bx, by, count, minSpeed, speedRange) => {
         for (let i = 0; i < count; i++) {
           const roll = Math.random();
+          const kind =
+            roll < 0.38 ? "petal" :
+            roll < 0.68 ? "confetti" :
+            roll < 0.8 ? "streamer" :
+            roll < 0.9 ? "heart" : "spark";
           const angle = Math.random() * Math.PI * 2;
-          const speed = (minSpeed + Math.random() * speedRange) * devicePixelRatio;
+          const speed = (minSpeed + Math.random() * speedRange) * dpr;
           burstParts.push({
-            kind: roll < 0.45 ? "petal" : roll < 0.82 ? "confetti" : "spark",
-            x, y,
+            kind,
+            x: bx, y: by,
             vx: Math.cos(angle) * speed,
-            vy: Math.sin(angle) * speed - 3.5 * devicePixelRatio,
+            vy: Math.sin(angle) * speed - 3.5 * dpr,
             angle: Math.random() * Math.PI * 2,
-            spin: (Math.random() - 0.5) * 0.4,
+            spin: (Math.random() - 0.5) * (kind === "streamer" ? 0.18 : 0.4),
             sway: Math.random() * Math.PI * 2,
             life: 1,
-            decay: 0.006 + Math.random() * 0.011,
-            size: (roll < 0.45 ? 5 + Math.random() * 7 : 4 + Math.random() * 6) * devicePixelRatio,
-            color: roll < 0.45
+            decay: 0.004 + Math.random() * 0.013,
+            size: (kind === "petal" ? 5 + Math.random() * 7 : 4 + Math.random() * 6) * dpr,
+            color: kind === "petal"
               ? PETAL_COLORS[(Math.random() * PETAL_COLORS.length) | 0]
               : CONFETTI_COLORS[(Math.random() * CONFETTI_COLORS.length) | 0],
           });
         }
       };
 
-      const n = window.innerWidth < 600 ? 180 : 280;
-      throwParticles(n, 5, 16);
-      burstParts.push({ kind: "flash", x, y, life: 1, decay: 0.06 });
-      burstParts.push({ kind: "shock", x, y, r: 0, vr: 16 * devicePixelRatio, life: 1, decay: 0.028 });
-      // second crackle wave right behind the first
+      const boom = (bx, by, count, minSpeed, speedRange, scale) => {
+        throwParticles(bx, by, count, minSpeed, speedRange);
+        burstParts.push({ kind: "flash", x: bx, y: by, life: 1, decay: 0.05, scale });
+        burstParts.push({ kind: "shock", x: bx, y: by, r: 0, vr: 16 * dpr * scale, life: 1, decay: 0.028 });
+      };
+
+      const x = cx * dpr;
+      const y = cy * dpr;
+      const n = window.innerWidth < 600 ? 200 : 300;
+
+      // the big one, from the button
+      boom(x, y, n, 5, 17, 1.35);
+      // crackle wave right behind it
       setTimeout(() => {
         if (motionOff) return;
-        throwParticles(Math.round(n / 3), 9, 14);
-        burstParts.push({ kind: "shock", x, y, r: 0, vr: 20 * devicePixelRatio, life: 0.8, decay: 0.032 });
+        throwParticles(x, y, Math.round(n / 3), 9, 14);
+        burstParts.push({ kind: "shock", x, y, r: 0, vr: 20 * dpr, life: 0.8, decay: 0.032 });
       }, 150);
+      // satellite fireworks popping around the screen as the doors part
+      [420, 680, 950].forEach((t) =>
+        setTimeout(() => {
+          if (motionOff) return;
+          const bx = (0.15 + Math.random() * 0.7) * W;
+          const by = (0.12 + Math.random() * 0.45) * H;
+          boom(bx, by, Math.round(n / 3), 6, 12, 0.7);
+        }, t)
+      );
 
-      // lift the canvas above the doors while the burst plays
+      // one sharp screen shake at the moment of impact
+      const op = document.getElementById("opening");
+      if (op) op.classList.add("shake");
+
+      // lift the canvas above the doors while the finale plays
       canvas.classList.add("burst");
-      setTimeout(() => canvas.classList.remove("burst"), 2600);
+      setTimeout(() => canvas.classList.remove("burst"), 3300);
     },
   };
 })();
