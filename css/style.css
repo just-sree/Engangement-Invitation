@@ -66,6 +66,13 @@ img { max-width: 100%; display: block; }
 }
 .section-title.light { color: var(--gold-light); }
 .section-sub { text-align: center; margin: -0.8rem 0 2.2rem; opacity: 0.85; }
+.rsvp-by {
+  text-align: center;
+  font-family: var(--serif); font-style: italic;
+  font-size: 1.05rem; color: var(--olive);
+  margin: -1.4rem 0 2.2rem;
+}
+.rsvp-by strong { font-style: normal; font-weight: 600; }
 
 .gold-rule {
   display: flex; align-items: center; gap: 0.8rem;
