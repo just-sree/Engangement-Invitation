@@ -452,18 +452,43 @@ $$(".reveal").forEach((el) => io.observe(el));
 
     let delivered = false;
 
-    // 1. Google Form (invisible to guests)
+    // 1. Google Form (invisible to guests), via our own /api/rsvp proxy
+    // so we can actually confirm Google accepted it — a direct browser
+    // POST can only use mode:"no-cors", which can't be read at all and
+    // would silently report success even on a rejection.
     const gf = CONFIG.googleForm;
-    if (gf.action && gf.build) {
+    const gfEntries = gf.action && gf.build ? gf.build(data) : null;
+    let proxyReachable = false;
+
+    if (gfEntries) {
       try {
-        const fd = new FormData();
-        for (const [entryId, value] of Object.entries(gf.build(data))) {
-          fd.append(entryId, value);
+        const proxyRes = await fetch("/api/rsvp", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ entries: gfEntries }),
+        });
+        if (proxyRes.status !== 404) {
+          proxyReachable = true;
+          const result = await proxyRes.json();
+          delivered = !!result.ok;
         }
-        await fetch(gf.action, { method: "POST", mode: "no-cors", body: fd });
-        delivered = true;
       } catch {
-        /* fall through */
+        /* /api/rsvp isn't available on this host (e.g. GitHub Pages) */
+      }
+
+      // Fallback for static hosts with no serverless functions: best
+      // effort only, can't confirm delivery (same limitation as before).
+      if (!proxyReachable) {
+        try {
+          const fd = new FormData();
+          for (const [entryId, value] of Object.entries(gfEntries)) {
+            fd.append(entryId, value);
+          }
+          await fetch(gf.action, { method: "POST", mode: "no-cors", body: fd });
+          delivered = true;
+        } catch {
+          /* fall through */
+        }
       }
     }
 
@@ -482,8 +507,14 @@ $$(".reveal").forEach((el) => io.observe(el));
       }
     }
 
-    // 3. Last resort: pre-filled email
+    // 3. Last resort: pre-filled email. Also render it as a real tappable
+    // link, not just a JS-triggered navigation — WhatsApp/Instagram's
+    // in-app browser is known to silently swallow location.href="mailto:"
+    // with no error and no mail app opening, which would otherwise leave
+    // guests seeing "Thank you!" while nothing was ever sent.
+    let usedEmailFallback = false;
     if (!delivered) {
+      usedEmailFallback = true;
       const lines = [
         `RSVP — Mannat & Sree's Engagement`,
         ``,
@@ -495,10 +526,26 @@ $$(".reveal").forEach((el) => io.observe(el));
         `Contact: ${data.contact}`,
         `Message: ${data.message || "—"}`,
       ].filter(Boolean);
-      location.href =
+      const mailtoHref =
         `mailto:${CONFIG.rsvpEmail}` +
         `?subject=${encodeURIComponent("RSVP — " + data.name)}` +
         `&body=${encodeURIComponent(lines.join("\n"))}`;
+      const emailLink = $("#thanks-email-link");
+      emailLink.href = mailtoHref;
+      emailLink.hidden = false;
+      location.href = mailtoHref;
+    }
+
+    if (usedEmailFallback) {
+      $("#thanks-title").textContent = "Almost there!";
+      $("#thanks-message").textContent =
+        "We've opened your email app with your RSVP ready — please hit send to complete it. " +
+        "If nothing opened, tap the button below.";
+    } else {
+      $("#thanks-title").textContent = "Thank you!";
+      $("#thanks-message").textContent =
+        "Your RSVP has been received. We can't wait to celebrate with you. 💛";
+      $("#thanks-email-link").hidden = true;
     }
 
     form.hidden = true;
