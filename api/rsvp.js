@@ -29,11 +29,26 @@ module.exports = async (req, res) => {
   const GOOGLE_FORM_ACTION =
     "https://docs.google.com/forms/d/e/1FAIpQLSeZAHSJiYR4RL0wu2pb-ur4_h7KRZPCMb6k0kROhdx8bDjjRw/formResponse";
 
+  // This route is public — anyone who finds the URL could otherwise use
+  // it as an open relay to spam the linked Google Form with arbitrary
+  // entry IDs and content. Only forward this form's own known fields.
+  const ALLOWED_ENTRY_IDS = new Set([
+    "entry.877086558", // Will you attend?
+    "entry.460312198", // Names
+    "entry.1498135098", // Number of guests
+    "entry.1881695774", // Message
+  ]);
+  const MAX_FIELD_LENGTH = 3000;
+
   const params = new URLSearchParams();
   for (const [key, value] of Object.entries(entries)) {
-    if (value != null && value !== "" && /^entry\.\d+$/.test(key)) {
-      params.append(key, String(value));
+    if (value != null && value !== "" && ALLOWED_ENTRY_IDS.has(key)) {
+      params.append(key, String(value).slice(0, MAX_FIELD_LENGTH));
     }
+  }
+  if ([...params.keys()].length === 0) {
+    res.status(400).json({ ok: false, reason: "empty_submission" });
+    return;
   }
 
   try {
