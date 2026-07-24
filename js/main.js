@@ -435,6 +435,36 @@ $$(".reveal").forEach((el) => io.observe(el));
     }
   });
 
+  // fetch with a hard timeout, so a hung server never freezes the button
+  async function fetchWithTimeout(url, options, ms) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), ms);
+    try {
+      return await fetch(url, { ...options, signal: controller.signal });
+    } finally {
+      clearTimeout(timer);
+    }
+  }
+
+  function buildMailto(data) {
+    const lines = [
+      `RSVP — Mannat & Sree's Engagement`,
+      ``,
+      `Name: ${data.name || ""}`,
+      `Attending: ${data.attending || ""}`,
+      data.attending !== "Regretfully declines"
+        ? `Guests: ${data.guests || 1}\nGuest names: ${data.guest_names || "—"}\nSong request: ${data.song || "—"}`
+        : null,
+      `Contact: ${data.contact || ""}`,
+      `Message: ${data.message || "—"}`,
+    ].filter(Boolean);
+    return (
+      `mailto:${CONFIG.rsvpEmail}` +
+      `?subject=${encodeURIComponent("RSVP — " + (data.name || "Guest"))}` +
+      `&body=${encodeURIComponent(lines.join("\n"))}`
+    );
+  }
+
   form.addEventListener("submit", async (e) => {
     e.preventDefault();
     const data = Object.fromEntries(new FormData(form).entries());
@@ -451,60 +481,87 @@ $$(".reveal").forEach((el) => io.observe(el));
     btn.textContent = "Sending…";
 
     let delivered = false;
+    let usedEmailFallback = false;
 
-    // 1. Google Form (invisible to guests), via our own /api/rsvp proxy
-    // so we can actually confirm Google accepted it — a direct browser
-    // POST can only use mode:"no-cors", which can't be read at all and
-    // would silently report success even on a rejection.
-    const gf = CONFIG.googleForm;
-    const gfEntries = gf.action && gf.build ? gf.build(data) : null;
-    let proxyReachable = false;
+    // Everything below is wrapped so that ANY unexpected error — a hung
+    // request, a bad response, a bug — still lands the guest on the
+    // email fallback instead of leaving the button stuck on "Sending…"
+    // forever with no way forward.
+    try {
+      // 1. Google Form (invisible to guests), via our own /api/rsvp proxy
+      // so we can actually confirm Google accepted it — a direct browser
+      // POST can only use mode:"no-cors", which can't be read at all and
+      // would silently report success even on a rejection.
+      const gf = CONFIG.googleForm;
+      const gfEntries = gf.action && gf.build ? gf.build(data) : null;
+      let proxyReachable = false;
 
-    if (gfEntries) {
-      try {
-        const proxyRes = await fetch("/api/rsvp", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ entries: gfEntries }),
-        });
-        if (proxyRes.status !== 404) {
-          proxyReachable = true;
-          const result = await proxyRes.json();
-          delivered = !!result.ok;
+      if (gfEntries) {
+        try {
+          const proxyRes = await fetchWithTimeout(
+            "/api/rsvp",
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ entries: gfEntries }),
+            },
+            8000
+          );
+          if (proxyRes.status !== 404) {
+            proxyReachable = true;
+            try {
+              const result = await proxyRes.json();
+              delivered = !!result.ok;
+            } catch {
+              delivered = false; // e.g. a non-JSON 500/504 error page
+            }
+          }
+        } catch {
+          /* /api/rsvp unreachable, timed out, or not on this host (e.g.
+             GitHub Pages) — treat as unavailable, try the next path */
         }
-      } catch {
-        /* /api/rsvp isn't available on this host (e.g. GitHub Pages) */
+
+        // Fallback for static hosts with no serverless functions: best
+        // effort only, can't confirm delivery (same limitation as before).
+        if (!proxyReachable) {
+          try {
+            const fd = new FormData();
+            for (const [entryId, value] of Object.entries(gfEntries)) {
+              fd.append(entryId, value);
+            }
+            await fetchWithTimeout(
+              gf.action,
+              { method: "POST", mode: "no-cors", body: fd },
+              8000
+            );
+            delivered = true;
+          } catch {
+            /* fall through */
+          }
+        }
       }
 
-      // Fallback for static hosts with no serverless functions: best
-      // effort only, can't confirm delivery (same limitation as before).
-      if (!proxyReachable) {
+      // 2. Custom endpoint, if configured
+      if (!delivered && CONFIG.rsvpEndpoint) {
         try {
-          const fd = new FormData();
-          for (const [entryId, value] of Object.entries(gfEntries)) {
-            fd.append(entryId, value);
-          }
-          await fetch(gf.action, { method: "POST", mode: "no-cors", body: fd });
+          await fetchWithTimeout(
+            CONFIG.rsvpEndpoint,
+            {
+              method: "POST",
+              mode: "no-cors",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ ...data, submitted: new Date().toISOString() }),
+            },
+            8000
+          );
           delivered = true;
         } catch {
-          /* fall through */
+          /* fall through to email */
         }
       }
-    }
-
-    // 2. Custom endpoint, if configured
-    if (!delivered && CONFIG.rsvpEndpoint) {
-      try {
-        await fetch(CONFIG.rsvpEndpoint, {
-          method: "POST",
-          mode: "no-cors",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ ...data, submitted: new Date().toISOString() }),
-        });
-        delivered = true;
-      } catch {
-        /* fall through to email */
-      }
+    } catch {
+      /* truly unexpected failure somewhere above — email fallback below
+         still runs regardless */
     }
 
     // 3. Last resort: pre-filled email. Also render it as a real tappable
@@ -512,28 +569,18 @@ $$(".reveal").forEach((el) => io.observe(el));
     // in-app browser is known to silently swallow location.href="mailto:"
     // with no error and no mail app opening, which would otherwise leave
     // guests seeing "Thank you!" while nothing was ever sent.
-    let usedEmailFallback = false;
     if (!delivered) {
       usedEmailFallback = true;
-      const lines = [
-        `RSVP — Mannat & Sree's Engagement`,
-        ``,
-        `Name: ${data.name}`,
-        `Attending: ${data.attending}`,
-        data.attending !== "Regretfully declines"
-          ? `Guests: ${data.guests || 1}\nGuest names: ${data.guest_names || "—"}\nSong request: ${data.song || "—"}`
-          : null,
-        `Contact: ${data.contact}`,
-        `Message: ${data.message || "—"}`,
-      ].filter(Boolean);
-      const mailtoHref =
-        `mailto:${CONFIG.rsvpEmail}` +
-        `?subject=${encodeURIComponent("RSVP — " + data.name)}` +
-        `&body=${encodeURIComponent(lines.join("\n"))}`;
+      const mailtoHref = buildMailto(data);
       const emailLink = $("#thanks-email-link");
       emailLink.href = mailtoHref;
       emailLink.hidden = false;
-      location.href = mailtoHref;
+      try {
+        location.href = mailtoHref;
+      } catch {
+        /* some in-app browsers reject the mailto: navigation outright —
+           the visible button above is the real fallback for those */
+      }
     }
 
     if (usedEmailFallback) {
