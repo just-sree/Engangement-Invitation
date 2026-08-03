@@ -446,6 +446,71 @@ $$(".reveal").forEach((el) => io.observe(el));
     }
   }
 
+  // Post to Google Forms with a real <form> submission aimed at a hidden
+  // iframe. This is the one approach that works from any host: a genuine
+  // form POST is not subject to CORS at all (unlike fetch, which can only
+  // reach Google with mode:"no-cors" — a mode whose "response" is opaque
+  // and resolves even when the submission was thrown away). The iframe's
+  // load event fires once Google has actually answered, so it's a real
+  // completion signal rather than a guess.
+  // NOTE ON CERTAINTY: the iframe's load event fires even when the POST
+  // fails, because the browser loads an *error page* into the frame —
+  // and cross-origin rules forbid reading that page to tell the two
+  // apart. So this path delivers reliably but cannot fully verify. Only
+  // /api/rsvp (server-side, where CORS doesn't apply) can truly confirm.
+  // That's why the thank-you screen always keeps an email escape hatch.
+  function submitViaHiddenIframe(action, entries, ms) {
+    return new Promise((resolve) => {
+      // The one failure we *can* catch client-side: no connection at all.
+      if (navigator.onLine === false) {
+        resolve(false);
+        return;
+      }
+      let iframe, formEl, timer, settled = false;
+
+      const finish = (ok) => {
+        if (settled) return;
+        settled = true;
+        clearTimeout(timer);
+        // leave them in the DOM briefly so the POST isn't torn down early
+        setTimeout(() => {
+          iframe?.remove();
+          formEl?.remove();
+        }, 1500);
+        resolve(ok);
+      };
+
+      try {
+        const frameName = "gform-target-" + Date.now();
+        iframe = document.createElement("iframe");
+        iframe.name = frameName;
+        iframe.setAttribute("aria-hidden", "true");
+        iframe.style.display = "none";
+        iframe.addEventListener("load", () => finish(true));
+        document.body.appendChild(iframe);
+
+        formEl = document.createElement("form");
+        formEl.action = action;
+        formEl.method = "POST";
+        formEl.target = frameName;
+        formEl.style.display = "none";
+        for (const [key, value] of Object.entries(entries)) {
+          const input = document.createElement("input");
+          input.type = "hidden";
+          input.name = key;
+          input.value = String(value);
+          formEl.appendChild(input);
+        }
+        document.body.appendChild(formEl);
+
+        timer = setTimeout(() => finish(false), ms);
+        formEl.submit();
+      } catch {
+        finish(false);
+      }
+    });
+  }
+
   function buildMailto(data) {
     const lines = [
       `RSVP — Mannat & Sree's Engagement`,
@@ -488,15 +553,15 @@ $$(".reveal").forEach((el) => io.observe(el));
     // email fallback instead of leaving the button stuck on "Sending…"
     // forever with no way forward.
     try {
-      // 1. Google Form (invisible to guests), via our own /api/rsvp proxy
-      // so we can actually confirm Google accepted it — a direct browser
-      // POST can only use mode:"no-cors", which can't be read at all and
-      // would silently report success even on a rejection.
       const gf = CONFIG.googleForm;
       const gfEntries = gf.action && gf.build ? gf.build(data) : null;
-      let proxyReachable = false;
 
       if (gfEntries) {
+        // 1. Ask our own /api/rsvp proxy first when it exists (Vercel).
+        // It posts to Google server-side, where CORS doesn't apply, so
+        // it can read Google's real answer and tell us definitively
+        // whether the RSVP was accepted or rejected.
+        let verdict = null; // true = accepted, false = rejected, null = no answer
         try {
           const proxyRes = await fetchWithTimeout(
             "/api/rsvp",
@@ -505,43 +570,30 @@ $$(".reveal").forEach((el) => io.observe(el));
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ entries: gfEntries }),
             },
-            8000
+            6000
           );
-          if (proxyRes.status !== 404) {
-            proxyReachable = true;
-            try {
-              const result = await proxyRes.json();
-              delivered = !!result.ok;
-            } catch {
-              delivered = false; // e.g. a non-JSON 500/504 error page
-            }
+          if (proxyRes.ok) {
+            const result = await proxyRes.json();
+            verdict = !!result.ok;
           }
+          // any non-2xx (404 on a static host, 502, …) leaves verdict null
         } catch {
-          /* /api/rsvp unreachable, timed out, or not on this host (e.g.
-             GitHub Pages) — treat as unavailable, try the next path */
+          /* proxy missing, timed out, or errored — leaves verdict null */
         }
 
-        // Fallback for static hosts with no serverless functions: best
-        // effort only, can't confirm delivery (same limitation as before).
-        if (!proxyReachable) {
-          try {
-            const fd = new FormData();
-            for (const [entryId, value] of Object.entries(gfEntries)) {
-              fd.append(entryId, value);
-            }
-            await fetchWithTimeout(
-              gf.action,
-              { method: "POST", mode: "no-cors", body: fd },
-              8000
-            );
-            delivered = true;
-          } catch {
-            /* fall through */
-          }
+        if (verdict === true) {
+          delivered = true;
+        } else if (verdict === null) {
+          // 2. No verdict, so the proxy isn't available here. Deliver via
+          // a real hidden-iframe form POST, which works from any host.
+          delivered = await submitViaHiddenIframe(gf.action, gfEntries, 8000);
         }
+        // verdict === false means Google itself rejected it; retrying the
+        // same submission by iframe would fail for the same reason, so
+        // fall straight through to the email fallback.
       }
 
-      // 2. Custom endpoint, if configured
+      // 3. Custom endpoint, if one is configured
       if (!delivered && CONFIG.rsvpEndpoint) {
         try {
           await fetchWithTimeout(
@@ -552,7 +604,7 @@ $$(".reveal").forEach((el) => io.observe(el));
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ ...data, submitted: new Date().toISOString() }),
             },
-            8000
+            6000
           );
           delivered = true;
         } catch {
@@ -588,11 +640,18 @@ $$(".reveal").forEach((el) => io.observe(el));
       $("#thanks-message").textContent =
         "We've opened your email app with your RSVP ready — please hit send to complete it. " +
         "If nothing opened, tap the button below.";
+      $("#thanks-backup").hidden = true;
     } else {
       $("#thanks-title").textContent = "Thank you!";
       $("#thanks-message").textContent =
         "Your RSVP has been received. We can't wait to celebrate with you. 💛";
       $("#thanks-email-link").hidden = true;
+      // A browser can't fully verify a cross-origin form POST, so keep a
+      // quiet recovery route visible rather than risk a guest believing
+      // an RSVP landed when it silently didn't.
+      const backupLink = $("#thanks-backup-link");
+      backupLink.href = buildMailto(data);
+      $("#thanks-backup").hidden = false;
     }
 
     form.hidden = true;
