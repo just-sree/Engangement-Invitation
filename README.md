@@ -64,7 +64,28 @@ and updating `musicTitle` in `CONFIG` (`js/main.js`).
 The ♪ button and volume slider control whichever source is active, and
 music auto-pauses when the browser tab is hidden.
 
-### Collecting RSVPs in your Google Form
+### Collecting RSVPs with Formspree (recommended)
+
+Set `formspreeEndpoint` in `CONFIG` (`js/main.js`) and every RSVP is
+emailed straight to you:
+
+1. Sign up free at [formspree.io](https://formspree.io) → **New Form**.
+2. Copy the endpoint URL it gives you (`https://formspree.io/f/xxxxxxxx`).
+3. Paste it into `CONFIG.formspreeEndpoint`.
+4. Submit one test RSVP — Formspree asks you to confirm your email the
+   first time, then delivers every submission after that.
+
+Formspree is the preferred path because it sends proper CORS headers,
+so the site can **read the response and know for certain** whether an
+RSVP was delivered. Google Forms can't do this: a browser may only post
+to it opaquely, so a rejected submission is indistinguishable from a
+successful one — which is exactly how RSVPs can vanish silently.
+
+Formspree's free tier covers 50 submissions/month. While
+`formspreeEndpoint` is empty, the site falls back to the Google Form
+setup below.
+
+### Fallback: collecting RSVPs in a Google Form
 
 The site's styled RSVP form submits quietly into the couple's Google Form —
 guests never see the Google Form. `CONFIG.googleForm.build()` in

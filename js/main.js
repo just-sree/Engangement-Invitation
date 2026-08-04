@@ -10,11 +10,21 @@ const CONFIG = {
   eventDate: new Date("2026-09-20T18:00:00-04:00"),
   eventEnd: new Date("2026-09-20T23:00:00-04:00"),
 
-  // RSVPs are submitted quietly into this Google Form (guests only ever
-  // see the styled form on the site). The entry IDs come from the form's
-  // pre-filled link: Google Form editor → ⋮ → "Get pre-filled link" →
-  // fill in sample answers → copy link → the URL contains entry.NNNN=…
-  // pairs. Paste each entry.NNNN below next to the matching field.
+  // ── PRIMARY: Formspree ──────────────────────────────────────────
+  // Paste your Formspree endpoint here, e.g.
+  //   formspreeEndpoint: "https://formspree.io/f/abcdwxyz",
+  // Get one free at formspree.io → New Form → copy the endpoint URL.
+  //
+  // Why this is the good path: unlike Google Forms, Formspree sends
+  // proper CORS headers, so the browser can READ the response and know
+  // for certain whether the RSVP was delivered. No guessing, no silent
+  // failures, and no Google sign-in wall rejecting anonymous guests.
+  // Every RSVP is emailed to the address on the Formspree account.
+  formspreeEndpoint: "",
+
+  // ── FALLBACK: Google Form ───────────────────────────────────────
+  // Used only while formspreeEndpoint is empty. Kept so the site keeps
+  // working until the Formspree endpoint is filled in above.
   googleForm: {
     action:
       "https://docs.google.com/forms/d/e/1FAIpQLSeZAHSJiYR4RL0wu2pb-ur4_h7KRZPCMb6k0kROhdx8bDjjRw/formResponse",
@@ -511,6 +521,30 @@ $$(".reveal").forEach((el) => io.observe(el));
     });
   }
 
+  // Readable keys — Formspree renders these as the notification email's
+  // field labels, so the couple gets a tidy summary rather than raw keys.
+  function buildFormspreePayload(data) {
+    const declining = data.attending === "Regretfully declines";
+    const payload = {
+      _subject: `RSVP — ${data.name || "Guest"}${declining ? " (can't make it)" : ""}`,
+      Name: data.name || "",
+      Attending: declining ? "❌ Regretfully declines" : "✅ Joyfully accepts",
+      Contact: data.contact || "",
+    };
+    // Guest details are meaningless on a decline, so leave them off.
+    if (!declining) {
+      payload["Number of guests"] = data.guests || "1";
+      if (data.guest_names) payload["Accompanying guests"] = data.guest_names;
+      if (data.song) payload["Song request"] = data.song;
+    }
+    if (data.message) payload["Message for the couple"] = data.message;
+    // Lets the couple hit reply straight from the notification email.
+    if (/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test((data.contact || "").trim())) {
+      payload._replyto = data.contact.trim();
+    }
+    return payload;
+  }
+
   function buildMailto(data) {
     const lines = [
       `RSVP — Mannat & Sree's Engagement`,
@@ -546,6 +580,10 @@ $$(".reveal").forEach((el) => io.observe(el));
     btn.textContent = "Sending…";
 
     let delivered = false;
+    // `verified` = we read a real success response, so we KNOW it landed.
+    // Delivery paths that can't be read (the Google iframe) set delivered
+    // without verified, and keep a recovery link on screen accordingly.
+    let verified = false;
     let usedEmailFallback = false;
 
     // Everything below is wrapped so that ANY unexpected error — a hung
@@ -553,8 +591,35 @@ $$(".reveal").forEach((el) => io.observe(el));
     // email fallback instead of leaving the button stuck on "Sending…"
     // forever with no way forward.
     try {
-      const gf = CONFIG.googleForm;
-      const gfEntries = gf.action && gf.build ? gf.build(data) : null;
+      // 0. Formspree — the preferred path. It sends CORS headers, so we
+      // can read the real HTTP status and know with certainty whether
+      // the RSVP was accepted, instead of guessing at an opaque result.
+      if (CONFIG.formspreeEndpoint) {
+        try {
+          const fsRes = await fetchWithTimeout(
+            CONFIG.formspreeEndpoint,
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+                Accept: "application/json",
+              },
+              body: JSON.stringify(buildFormspreePayload(data)),
+            },
+            8000
+          );
+          delivered = fsRes.ok; // a genuine, readable success/failure
+          verified = fsRes.ok;
+        } catch {
+          /* offline or timed out — fall through to the email fallback */
+        }
+        // Formspree is configured, so it's the single source of truth:
+        // skip the Google path entirely to avoid duplicate RSVP records.
+        if (!delivered) throw new Error("formspree_failed");
+      }
+
+      const gf = CONFIG.formspreeEndpoint ? null : CONFIG.googleForm;
+      const gfEntries = gf && gf.action && gf.build ? gf.build(data) : null;
 
       if (gfEntries) {
         // 1. Ask our own /api/rsvp proxy first when it exists (Vercel).
@@ -583,6 +648,7 @@ $$(".reveal").forEach((el) => io.observe(el));
 
         if (verdict === true) {
           delivered = true;
+          verified = true; // the proxy read Google's real answer
         } else if (verdict === null) {
           // 2. No verdict, so the proxy isn't available here. Deliver via
           // a real hidden-iframe form POST, which works from any host.
@@ -646,12 +712,16 @@ $$(".reveal").forEach((el) => io.observe(el));
       $("#thanks-message").textContent =
         "Your RSVP has been received. We can't wait to celebrate with you. 💛";
       $("#thanks-email-link").hidden = true;
-      // A browser can't fully verify a cross-origin form POST, so keep a
-      // quiet recovery route visible rather than risk a guest believing
-      // an RSVP landed when it silently didn't.
-      const backupLink = $("#thanks-backup-link");
-      backupLink.href = buildMailto(data);
-      $("#thanks-backup").hidden = false;
+      if (verified) {
+        // We read a real success response — no need to hedge.
+        $("#thanks-backup").hidden = true;
+      } else {
+        // Delivered over a channel whose result can't be read (the
+        // cross-origin form POST), so keep a quiet recovery route rather
+        // than risk a guest believing an RSVP landed when it didn't.
+        $("#thanks-backup-link").href = buildMailto(data);
+        $("#thanks-backup").hidden = false;
+      }
     }
 
     form.hidden = true;
