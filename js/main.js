@@ -32,7 +32,7 @@ const CONFIG = {
   // sees, so a broken confirmation email can't cost you an RSVP.
   emailjs: {
     publicKey: "",
-    serviceId: "",
+    serviceId: "service_gv69yge",
     templateId: "",
   },
 
