@@ -31,9 +31,9 @@ const CONFIG = {
   // been delivered, and a failure here never changes what the guest
   // sees, so a broken confirmation email can't cost you an RSVP.
   emailjs: {
-    publicKey: "",
+    publicKey: "1nrj8fRBwsa49jjuY",
     serviceId: "service_gv69yge",
-    templateId: "",
+    templateId: "template_62gtnmm",
   },
 
   // ── FALLBACK: Google Form ───────────────────────────────────────
