@@ -1,0 +1,9 @@
+{
+  "name": "mannat-and-sree-engagement",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Engagement invitation site for Mannat & Sree",
+  "dependencies": {
+    "nodemailer": "^6.9.14"
+  }
+}

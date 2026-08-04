@@ -22,19 +22,16 @@ const CONFIG = {
   // Every RSVP is emailed to the address on the Formspree account.
   formspreeEndpoint: "https://formspree.io/f/xdennwjd",
 
-  // ── Guest confirmation email (optional) ─────────────────────────
-  // Emails the guest a copy of their RSVP + calendar links, sent from
-  // your own Gmail via EmailJS. Fill all three in to switch it on —
-  // see the README for the 10-minute setup. Free tier ≈200 emails/mo.
+  // ── Guest confirmation email ────────────────────────────────────
+  // Handled by the /api/confirm serverless function, which sends from
+  // the couple's Gmail. The credentials live in Vercel environment
+  // variables and never reach the browser — unlike a client-side
+  // sender, whose key is visible in the page source.
   //
-  // This is deliberately best-effort: it runs only AFTER the RSVP has
-  // been delivered, and a failure here never changes what the guest
-  // sees, so a broken confirmation email can't cost you an RSVP.
-  emailjs: {
-    publicKey: "1nrj8fRBwsa49jjuY",
-    serviceId: "service_gv69yge",
-    templateId: "template_62gtnmm",
-  },
+  // Deliberately best-effort: it runs only AFTER the RSVP has been
+  // delivered, and a failure never changes what the guest sees, so a
+  // broken confirmation email can't cost you an RSVP.
+  confirmEndpoint: "/api/confirm",
 
   // ── FALLBACK: Google Form ───────────────────────────────────────
   // Used only while formspreeEndpoint is empty. Kept so the site keeps
@@ -626,49 +623,33 @@ const calendar = (() => {
     $("#thanks-event").hidden = false;
   }
 
-  // Loads the EmailJS SDK on demand — only for guests who actually
-  // complete an RSVP, so the script never costs anyone else a request.
-  let emailjsReady = null;
-  function loadEmailJs() {
-    if (emailjsReady) return emailjsReady;
-    emailjsReady = new Promise((resolve, reject) => {
-      const s = document.createElement("script");
-      s.src = "https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js";
-      s.onload = () => resolve(window.emailjs);
-      s.onerror = () => reject(new Error("emailjs_sdk_failed"));
-      document.head.appendChild(s);
-    });
-    return emailjsReady;
-  }
-
-  // Best-effort confirmation email to the guest. Never throws, never
+  // Best-effort confirmation email to the guest, sent by the server so
+  // no mail credentials are ever exposed here. Never throws, never
   // blocks, and never alters the RSVP result the guest is shown.
   async function sendGuestConfirmation(data) {
-    const cfg = CONFIG.emailjs;
-    if (!cfg.publicKey || !cfg.serviceId || !cfg.templateId) return;
+    if (!CONFIG.confirmEndpoint) return;
 
     const to = (data.contact || "").trim();
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(to)) return; // phone number, not email
 
-    const declining = data.attending === "Regretfully declines";
     try {
-      const emailjs = await loadEmailJs();
-      emailjs.init({ publicKey: cfg.publicKey });
-      await emailjs.send(cfg.serviceId, cfg.templateId, {
-        to_email: to,
-        guest_name: data.name || "Guest",
-        attending: declining ? "Regretfully declines" : "Joyfully accepts",
-        guests: declining ? "—" : data.guests || "1",
-        guest_names: data.guest_names || "—",
-        song: data.song || "—",
-        message: data.message || "—",
-        event_when: "Sunday, September 20, 2026 · 6:00 PM",
-        event_where: calendar.location,
-        calendar_link: calendar.gcalHref,
-        maps_link:
-          "https://www.google.com/maps/search/?api=1&query=" +
-          encodeURIComponent(calendar.location),
-      });
+      await fetchWithTimeout(
+        CONFIG.confirmEndpoint,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            to,
+            name: data.name || "",
+            attending: data.attending || "",
+            guests: data.guests || "1",
+            guest_names: data.guest_names || "",
+            song: data.song || "",
+            message: data.message || "",
+          }),
+        },
+        8000
+      );
     } catch {
       /* the RSVP itself is already safely delivered — stay silent */
     }
