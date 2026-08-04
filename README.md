@@ -85,6 +85,53 @@ Formspree's free tier covers 50 submissions/month. While
 `formspreeEndpoint` is empty, the site falls back to the Google Form
 setup below.
 
+### Sending guests a confirmation email (optional)
+
+Formspree's autoresponse is a paid feature, so guest confirmations are
+sent from your own Gmail via [EmailJS](https://www.emailjs.com) instead
+(free tier ≈200 emails/month). Setup takes about ten minutes:
+
+1. Sign up at emailjs.com → **Email Services** → **Add New Service** →
+   connect Gmail → copy the **Service ID**.
+2. **Email Templates** → **Create New Template**. Set **To Email** to
+   `{{to_email}}`, subject to something like
+   `Your RSVP — Mannat & Sree's Engagement`, and paste the body below.
+   Copy the **Template ID**.
+3. **Account** → copy your **Public Key**.
+4. Paste all three into `CONFIG.emailjs` in `js/main.js`.
+5. Under **Account → Security**, restrict the key to your site's domain
+   so nobody else can send email with it.
+
+Template body — the `{{...}}` names must match exactly:
+
+```
+Dear {{guest_name}},
+
+Thank you for your RSVP! Here's what we have:
+
+  Attending:     {{attending}}
+  Guests:        {{guests}}
+  Joining you:   {{guest_names}}
+  Song request:  {{song}}
+  Your message:  {{message}}
+
+  When:   {{event_when}}
+  Where:  {{event_where}}
+
+Add it to your calendar: {{calendar_link}}
+Directions: {{maps_link}}
+
+We can't wait to celebrate with you!
+
+With love,
+Mannat & Sree
+```
+
+The email is deliberately best-effort: it is sent only *after* the RSVP
+itself has been delivered, and any failure is swallowed silently, so a
+misconfigured template can never cost you an RSVP. Guests who leave a
+phone number instead of an email simply don't get one.
+
 ### Fallback: collecting RSVPs in a Google Form
 
 The site's styled RSVP form submits quietly into the couple's Google Form —
