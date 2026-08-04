@@ -20,7 +20,7 @@ const CONFIG = {
   // for certain whether the RSVP was delivered. No guessing, no silent
   // failures, and no Google sign-in wall rejecting anonymous guests.
   // Every RSVP is emailed to the address on the Formspree account.
-  formspreeEndpoint: "",
+  formspreeEndpoint: "https://formspree.io/f/xdennwjd",
 
   // ── FALLBACK: Google Form ───────────────────────────────────────
   // Used only while formspreeEndpoint is empty. Kept so the site keeps
