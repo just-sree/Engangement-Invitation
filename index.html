@@ -237,8 +237,10 @@
           </div>
 
           <label>
-            Phone number or email <span class="req">*</span>
-            <input type="text" name="contact" required placeholder="So we can confirm with you" />
+            Email address <span class="req">*</span>
+            <input type="email" name="contact" required autocomplete="email"
+                   inputmode="email" placeholder="you@example.com" />
+            <span class="field-hint">We'll send your RSVP confirmation here</span>
           </label>
 
           <label>
@@ -250,7 +252,7 @@
             <span class="btn-shine" aria-hidden="true"></span>
             Submit RSVP
           </button>
-          <p class="form-error" id="form-error" hidden>Please fill in your name, attendance, and contact details.</p>
+          <p class="form-error" id="form-error" hidden></p>
         </form>
 
         <div id="rsvp-thanks" class="rsvp-thanks" hidden>

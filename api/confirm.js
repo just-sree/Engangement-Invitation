@@ -7,6 +7,10 @@
 // is visible in the page source):
 //   GMAIL_USER          — the sending Gmail address
 //   GMAIL_APP_PASSWORD  — a Google App Password (not the account password)
+//   NOTIFY_EMAILS       — optional, comma-separated. Everyone here also
+//                         gets a copy of each RSVP, so both partners are
+//                         notified without depending on Formspree's plan
+//                         limits for extra recipients.
 //
 // Note: this endpoint is public, so it is deliberately narrow — it only
 // ever sends this one fixed RSVP-confirmation template, to a single
@@ -214,6 +218,43 @@ module.exports = async (req, res) => {
       text: buildText(data),
       html: buildHtml(data),
     });
+
+    // Copy the couple in, so both partners see every RSVP regardless of
+    // how many notification recipients the RSVP provider's plan allows.
+    // Failing here must not fail the guest's confirmation, which already
+    // sent — so it's awaited separately and only logged.
+    const notify = String(process.env.NOTIFY_EMAILS || "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter((s) => EMAIL_RE.test(s));
+    if (notify.length) {
+      const declining = data.attending === "Regretfully declines";
+      try {
+        await transporter.sendMail({
+          from: `"RSVP" <${user}>`,
+          to: notify,
+          replyTo: to,
+          subject: `RSVP — ${data.name || "Guest"}${declining ? " (can't make it)" : ` (${data.guests || "1"})`}`,
+          text: [
+            `New RSVP for the engagement:`,
+            ``,
+            `  Name:         ${data.name || "—"}`,
+            `  Attending:    ${declining ? "Regretfully declines" : "Joyfully accepts"}`,
+            declining ? null : `  Guests:       ${data.guests || "1"}`,
+            declining || !data.guest_names ? null : `  Joining them: ${data.guest_names}`,
+            declining || !data.song ? null : `  Song request: ${data.song}`,
+            `  Email:        ${to}`,
+            data.message ? `  Message:      ${data.message}` : null,
+            ``,
+            `Reply to this email to reach them directly.`,
+          ]
+            .filter((l) => l !== null)
+            .join("\n"),
+        });
+      } catch (err) {
+        console.error("couple notification failed:", err && err.message);
+      }
+    }
 
     res.status(200).json({ ok: true });
   } catch (err) {

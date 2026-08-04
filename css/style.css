@@ -566,6 +566,10 @@ img { max-width: 100%; display: block; }
 #attending-extra { display: grid; gap: 1.15rem; }
 #attending-extra.hidden { display: none; }
 .form-error { color: #a34a24; font-size: 0.88rem; text-align: center; }
+.field-hint {
+  display: block; margin-top: 0.3rem;
+  font-size: 0.78rem; color: var(--olive); opacity: 0.75;
+}
 
 .rsvp-thanks {
   text-align: center; background: #fff;

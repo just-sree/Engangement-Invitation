@@ -12,7 +12,8 @@ A one-page animated invitation website for Mannat & Sree's engagement.
 - ⏳ Live countdown (switches to a thank-you message after the big day)
 - 📖 "Our Story" scroll timeline
 - 📍 Event card with Google Maps, Google Calendar, and Apple/Outlook (.ics) buttons
-- 📝 Custom RSVP form (guests, song requests, messages)
+- 📝 Custom RSVP form (guests, song requests, messages) — a valid email
+  is required, so every guest can be sent a confirmation
 - 🎵 Music player — plays `assets/music.mp3` if present, otherwise a soft
   built-in generative strings-and-piano ambience; auto-mutes when the tab is hidden
 - ♿ Animation on/off toggle + respects `prefers-reduced-motion`
@@ -109,6 +110,11 @@ domain-restricted on a paid plan.
    |---|---|
    | `GMAIL_USER` | your full Gmail address |
    | `GMAIL_APP_PASSWORD` | the 16-character app password |
+   | `NOTIFY_EMAILS` | *(optional)* comma-separated addresses that should also receive a copy of every RSVP, e.g. `sree@gmail.com, mannat@gmail.com` |
+
+`NOTIFY_EMAILS` means both partners get every RSVP without relying on
+how many notification recipients the RSVP provider's plan allows. Its
+reply-to is set to the guest, so replying reaches them directly.
 
 Use the app password, never your real Google password. Gmail allows
 roughly 500 messages/day, far beyond what a guest list needs.

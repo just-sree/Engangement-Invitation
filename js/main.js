@@ -679,8 +679,26 @@ const calendar = (() => {
     const data = Object.fromEntries(new FormData(form).entries());
     const err = $("#form-error");
 
-    if (!data.name?.trim() || !data.attending || !data.contact?.trim()) {
+    // A valid email is required — it's how the guest gets their
+    // confirmation, so tell them exactly what's missing.
+    const EMAIL_RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
+    const contact = (data.contact || "").trim();
+    let problem = "";
+    if (!data.name?.trim()) problem = "Please tell us your name.";
+    else if (!data.attending) problem = "Please let us know if you can attend.";
+    else if (!contact) problem = "Please add your email address.";
+    else if (!EMAIL_RE.test(contact))
+      problem = "That email doesn't look quite right — please check it.";
+
+    if (problem) {
+      err.textContent = problem;
       err.hidden = false;
+      const field = !data.name?.trim()
+        ? form.querySelector("input[name=name]")
+        : !data.attending
+          ? form.querySelector("input[name=attending]")
+          : form.querySelector("input[name=contact]");
+      field?.focus();
       return;
     }
     err.hidden = true;
