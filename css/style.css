@@ -578,6 +578,46 @@ img { max-width: 100%; display: block; }
 .thanks-ornament { font-size: 2.2rem; color: var(--gold); margin-bottom: 0.6rem; }
 .thanks-backup { margin-top: 1.4rem; font-size: 0.85rem; opacity: 0.7; }
 .thanks-backup a { color: var(--olive); text-decoration: underline; cursor: pointer; }
+
+/* RSVP confirmation summary + save-the-date */
+.thanks-summary {
+  margin-top: 1.6rem; text-align: left;
+  background: var(--ivory); border: 1px solid var(--ivory-deep);
+  border-radius: 12px; padding: 1.1rem 1.3rem;
+}
+.ts-heading {
+  font-size: 0.72rem; letter-spacing: 0.26em; text-transform: uppercase;
+  color: var(--olive); opacity: 0.75; margin-bottom: 0.6rem; text-align: center;
+}
+.ts-list { display: grid; gap: 0.45rem; margin: 0; }
+.ts-row { display: flex; gap: 0.6rem; justify-content: space-between; align-items: baseline; }
+.ts-row dt {
+  font-size: 0.78rem; letter-spacing: 0.1em; text-transform: uppercase;
+  color: var(--olive); opacity: 0.7; white-space: nowrap;
+}
+.ts-row dd {
+  margin: 0; text-align: right;
+  font-family: var(--serif); font-size: 1.02rem; color: var(--ink);
+}
+
+.thanks-event {
+  margin-top: 1.5rem; padding: 1.4rem 1.2rem 1.2rem;
+  border-radius: 14px;
+  background: linear-gradient(175deg, var(--emerald), var(--emerald-deep));
+  color: var(--gold-pale);
+  box-shadow: 0 8px 24px rgba(20, 36, 25, 0.28);
+}
+.thanks-event .ts-heading { color: var(--gold-light); opacity: 0.9; margin-top: 1rem; }
+.ts-when { font-family: var(--serif); font-size: 1.15rem; }
+.ts-where { font-size: 0.9rem; opacity: 0.85; line-height: 1.5; margin-top: 0.25rem; }
+.ts-actions { display: flex; flex-wrap: wrap; gap: 0.6rem; justify-content: center; }
+.ts-actions .btn { padding: 0.6rem 1.1rem; font-size: 0.82rem; letter-spacing: 0.08em; }
+.thanks-event .thanks-backup a { color: var(--gold-light); }
+@media (max-width: 560px) {
+  .ts-actions .btn { width: 100%; }
+  .ts-row { flex-direction: column; gap: 0.1rem; }
+  .ts-row dd { text-align: left; }
+}
 .rsvp-thanks h3 { font-family: var(--script); font-size: 2.4rem; font-weight: 400; color: var(--olive); margin-bottom: 0.5rem; }
 
 /* ═════════════ CLOSING ═════════════ */

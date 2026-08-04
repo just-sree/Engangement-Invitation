@@ -389,7 +389,7 @@ $$(".reveal").forEach((el) => io.observe(el));
 // ------------------------------------------------------------------
 // 6. Add to Calendar
 // ------------------------------------------------------------------
-(() => {
+const calendar = (() => {
   const toUTC = (d) =>
     d.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
   const start = toUTC(CONFIG.eventDate);
@@ -399,7 +399,7 @@ $$(".reveal").forEach((el) => io.observe(el));
   const details =
     "Join us to celebrate the engagement of Mannat & Sree! Guest arrival from 6:00 PM.";
 
-  $("#gcal-link").href =
+  const gcalHref =
     "https://calendar.google.com/calendar/render?action=TEMPLATE" +
     `&text=${encodeURIComponent(title)}&dates=${start}/${end}` +
     `&details=${encodeURIComponent(details)}&location=${encodeURIComponent(location)}`;
@@ -419,14 +419,19 @@ $$(".reveal").forEach((el) => io.observe(el));
     "END:VEVENT",
     "END:VCALENDAR",
   ].join("\r\n");
-  $("#ics-link").href = URL.createObjectURL(
+  const icsHref = URL.createObjectURL(
     new Blob([ics], { type: "text/calendar" })
   );
+
+  $("#gcal-link").href = gcalHref;
+  $("#ics-link").href = icsHref;
 
   $("#add-calendar").addEventListener("click", () => {
     const menu = $("#calendar-menu");
     menu.hidden = !menu.hidden;
   });
+
+  return { gcalHref, icsHref, title, location };
 })();
 
 // ------------------------------------------------------------------
@@ -543,6 +548,68 @@ $$(".reveal").forEach((el) => io.observe(el));
       payload._replyto = data.contact.trim();
     }
     return payload;
+  }
+
+  // Confirmation screen: echo back what the guest just told us, plus
+  // save-the-date links, so they leave with a record of their RSVP.
+  function renderConfirmation(data) {
+    const declining = data.attending === "Regretfully declines";
+    const rows = [
+      ["Name", data.name],
+      ["Attending", declining ? "Regretfully declines" : "Joyfully accepts"],
+    ];
+    if (!declining) {
+      rows.push(["Guests", data.guests || "1"]);
+      if (data.guest_names) rows.push(["Joining you", data.guest_names]);
+      if (data.song) rows.push(["Song request", data.song]);
+    }
+    if (data.contact) rows.push(["Contact", data.contact]);
+    if (data.message) rows.push(["Your message", data.message]);
+
+    const list = $("#ts-list");
+    list.textContent = "";
+    for (const [label, value] of rows) {
+      const row = document.createElement("div");
+      row.className = "ts-row";
+      const dt = document.createElement("dt");
+      dt.textContent = label;
+      const dd = document.createElement("dd");
+      dd.textContent = value; // textContent, so guest input can't inject markup
+      row.append(dt, dd);
+      list.appendChild(row);
+    }
+    $("#thanks-summary").hidden = false;
+
+    // Only offer save-the-date to guests who are actually coming.
+    if (declining) {
+      $("#thanks-event").hidden = true;
+      return;
+    }
+    $("#ts-gcal").href = calendar.gcalHref;
+    $("#ts-ics").href = calendar.icsHref;
+
+    const body = [
+      `Your RSVP for Mannat & Sree's Engagement`,
+      ``,
+      ...rows.map(([label, value]) => `${label}: ${value}`),
+      ``,
+      `When:  Sunday, September 20, 2026 · 6:00 PM`,
+      `Where: ${calendar.location}`,
+      ``,
+      `Add to Google Calendar:`,
+      calendar.gcalHref,
+      ``,
+      `We can't wait to celebrate with you!`,
+      `With love, Mannat & Sree`,
+    ].join("\n");
+    const self = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test((data.contact || "").trim())
+      ? data.contact.trim()
+      : "";
+    $("#ts-selfmail").href =
+      `mailto:${self}` +
+      `?subject=${encodeURIComponent("Your RSVP — Mannat & Sree's Engagement")}` +
+      `&body=${encodeURIComponent(body)}`;
+    $("#thanks-event").hidden = false;
   }
 
   function buildMailto(data) {
@@ -707,11 +774,15 @@ $$(".reveal").forEach((el) => io.observe(el));
         "We've opened your email app with your RSVP ready — please hit send to complete it. " +
         "If nothing opened, tap the button below.";
       $("#thanks-backup").hidden = true;
+      // Nothing to confirm yet — the RSVP hasn't actually reached us.
+      $("#thanks-summary").hidden = true;
+      $("#thanks-event").hidden = true;
     } else {
       $("#thanks-title").textContent = "Thank you!";
       $("#thanks-message").textContent =
         "Your RSVP has been received. We can't wait to celebrate with you. 💛";
       $("#thanks-email-link").hidden = true;
+      renderConfirmation(data);
       if (verified) {
         // We read a real success response — no need to hedge.
         $("#thanks-backup").hidden = true;
