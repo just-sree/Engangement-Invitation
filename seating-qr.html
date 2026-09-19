@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Find Your Seat — QR sign</title>
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <style>
+    /* A print-ready table sign for the welcome desk. Print → Save as PDF,
+       or print straight to letter / A4. */
+    body { background: #fff; min-height: 100dvh; display: grid; place-items: center; padding: 1rem; }
+    .sign {
+      width: min(100%, 560px); text-align: center; color: var(--gold-pale);
+      border: 2px solid var(--gold); border-radius: 50% 50% 22px 22px / 12% 12% 22px 22px;
+      padding: 2.6rem 1.6rem 2.2rem;
+      background:
+        radial-gradient(ellipse at 50% -10%, #2a4534 0%, transparent 55%),
+        linear-gradient(175deg, var(--emerald), var(--emerald-deep));
+      box-shadow: 0 0 0 8px rgba(201, 162, 75, 0.1);
+      -webkit-print-color-adjust: exact; print-color-adjust: exact;
+    }
+    .sign-eyebrow { font-size: 0.75rem; letter-spacing: 0.34em; text-transform: uppercase; color: var(--gold-light); }
+    .sign-names { font-family: var(--script); font-size: clamp(2.6rem, 9vw, 3.6rem); color: var(--gold-light); line-height: 1.15; margin: 0.2rem 0 0.4rem; }
+    .sign-title { font-family: var(--serif); font-weight: 500; font-size: clamp(1.9rem, 7vw, 2.6rem); letter-spacing: 0.04em; margin-top: 0.4rem; }
+    .sign-sub { font-family: var(--serif); font-style: italic; font-size: 1.15rem; opacity: 0.92; margin-bottom: 1.4rem; }
+    .sign-qr { display: inline-block; background: #fff; padding: 0.7rem; border-radius: 14px; box-shadow: 0 8px 26px rgba(0,0,0,0.35); }
+    .sign-qr img { width: min(66vw, 300px); height: auto; display: block; }
+    .sign-url { font-family: var(--sans); font-size: 0.78rem; letter-spacing: 0.04em; opacity: 0.8; margin-top: 1.2rem; word-break: break-all; }
+    .sign-url a { color: var(--gold-light); text-decoration: none; }
+    .print-hint { position: fixed; bottom: 1rem; left: 0; right: 0; text-align: center; font-size: 0.85rem; color: var(--olive); }
+    .print-hint button { font: inherit; padding: 0.5rem 1.2rem; border-radius: 999px; border: 1px solid var(--gold); background: #fff; color: var(--olive); cursor: pointer; }
+    @media print {
+      @page { margin: 12mm; }
+      body { padding: 0; min-height: auto; }
+      .sign { width: 100%; box-shadow: none; }
+      .print-hint { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="sign">
+    <p class="sign-eyebrow">Welcome to the engagement of</p>
+    <p class="sign-names">Mannat <span class="amp">&amp;</span> Sree</p>
+    <div class="gold-rule" aria-hidden="true"><span>❦</span></div>
+    <h1 class="sign-title">Find Your Seat</h1>
+    <p class="sign-sub">Scan with your phone camera to find your table</p>
+    <div class="sign-qr">
+      <img src="assets/seating-qr.png" alt="QR code linking to the seating chart" />
+    </div>
+    <p class="sign-url"><a href="seating.html">just-sree.github.io/Engangement-Invitation/seating.html</a></p>
+  </div>
+  <p class="print-hint"><button onclick="window.print()">🖨 Print this sign</button></p>
+</body>
+</html>

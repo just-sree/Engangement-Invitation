@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Find Your Seat — Mannat &amp; Sree</title>
+  <meta name="description" content="Guest seating chart for Mannat & Sree's engagement celebration. Type your name to find your table." />
+  <meta property="og:title" content="Find Your Seat — Mannat & Sree" />
+  <meta property="og:description" content="Type your name to find your table at the engagement celebration." />
+  <meta property="og:type" content="website" />
+  <meta name="theme-color" content="#1d3327" />
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/seating.css" />
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🪑</text></svg>" />
+</head>
+<body class="seating-page">
+
+  <header class="seat-hero">
+    <div class="container narrow">
+      <p class="seat-eyebrow">Engagement Celebration</p>
+      <p class="seat-names">Mannat <span class="amp">&amp;</span> Sree</p>
+      <div class="gold-rule" aria-hidden="true"><span>❦</span></div>
+      <h1 class="seat-title">Find Your Seat</h1>
+      <p class="seat-sub">Type your name below and we'll point you to your table.</p>
+    </div>
+  </header>
+
+  <main class="seat-main">
+    <div class="container narrow">
+
+      <p class="seat-notice" id="seat-notice" hidden>
+        ✦ This is a sample layout — the final seating chart will appear here closer to the day.
+      </p>
+
+      <section class="seat-search-card" aria-labelledby="search-label">
+        <label id="search-label" for="seat-search" class="seat-search-label">Your name</label>
+        <div class="seat-search-wrap">
+          <span class="seat-search-icon" aria-hidden="true">⌕</span>
+          <input id="seat-search" type="search" autocomplete="off" autocapitalize="words"
+                 spellcheck="false" enterkeyhint="search" placeholder="e.g. Simran" autofocus />
+          <button type="button" id="seat-clear" class="seat-clear" aria-label="Clear search" hidden>×</button>
+        </div>
+        <p class="seat-status" id="seat-status" aria-live="polite"></p>
+        <ul class="seat-results" id="seat-results" aria-label="Matching guests"></ul>
+      </section>
+
+      <section class="seat-found" id="seat-found" hidden aria-live="polite">
+        <p class="seat-found-kicker">You're seated at</p>
+        <p class="seat-found-number"><span class="sf-word">Table</span> <span id="sf-number"></span></p>
+        <p class="seat-found-name" id="sf-name"></p>
+        <p class="seat-found-guest" id="sf-guest"></p>
+        <div class="gold-rule" aria-hidden="true"><span>✦</span></div>
+        <p class="seat-found-with-heading">Seated with you</p>
+        <ul class="seat-found-with" id="sf-with"></ul>
+        <button type="button" class="btn btn-outline seat-again" id="seat-again">Look up another name</button>
+      </section>
+
+      <section class="seat-browse" aria-labelledby="browse-title">
+        <h2 class="section-title" id="browse-title">All Tables</h2>
+        <p class="seat-browse-sub">Can't find your name? Browse the tables below or ask any member of the family — we'd love to help.</p>
+        <div class="seat-tables" id="seat-tables"></div>
+        <p class="seat-empty" id="seat-empty" hidden>The seating chart isn't available yet. Please check back closer to the day.</p>
+      </section>
+
+    </div>
+  </main>
+
+  <footer class="seat-footer">
+    <p>Sunday, September 20, 2026 · 6:00 PM · Speranza Banquet Hall, Brampton</p>
+    <p><a href="index.html">View the invitation</a></p>
+  </footer>
+
+  <script src="js/seating-data.js"></script>
+  <script src="js/seating.js"></script>
+</body>
+</html>

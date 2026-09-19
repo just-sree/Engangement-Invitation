@@ -18,6 +18,9 @@ A one-page animated invitation website for Mannat & Sree's engagement.
   built-in generative strings-and-piano ambience; auto-mutes when the tab is hidden
 - ♿ Animation on/off toggle + respects `prefers-reduced-motion`
 - 📱 Mobile-first (most guests will open it from WhatsApp)
+- 🪑 Guest seating chart (`seating.html`) — guests type their name and
+  see their table; comes with a printable QR sign (`seating-qr.html`)
+
 
 It is a plain static site — no build step.
 
@@ -149,6 +152,26 @@ If the Google submission fails, the site falls back to
 `CONFIG.rsvpEndpoint` (Apps Script/Formspree/etc.) if set, and finally to
 opening the guest's email app pre-filled to `CONFIG.rsvpEmail`.
 
+### Seating chart & QR code
+
+`seating.html` lets guests type their name and instantly see their table
+number and table-mates, with a browsable list of every table underneath.
+Live at <https://just-sree.github.io/Engangement-Invitation/seating.html>.
+
+**The guest list lives in `js/seating-data.js`** — edit the `tables`
+list there (table number, optional name, guests), or paste a published
+Google Sheet CSV link into `sheetCsvUrl` (File → Share → Publish to web →
+CSV, with `Name` and `Table` columns) to manage it from a spreadsheet.
+Set `sample: false` once the real names are in; until then the page shows
+a "sample layout" notice.
+
+**QR code:** `assets/seating-qr.png` (and `.svg`) encodes the seating
+page link. Open <https://just-sree.github.io/Engangement-Invitation/seating-qr.html>
+and print it for a ready-made welcome-desk sign, or drop the image onto
+your own signage. Note: the QR points at this repository's GitHub Pages
+address, so renaming the repository would break it — regenerate the
+image if you do.
+
 ### Updating text & photos
 
 - Story moments: edit the four `.story-card` blocks in `index.html`.
@@ -160,5 +183,4 @@ opening the guest's email app pre-filled to `CONFIG.rsvpEmail`.
 - Admin RSVP dashboard
 - Password-protected private gallery
 - English / Punjabi / Malayalam language toggle
-- QR code for the printed invitation
 - Live photo upload after the event

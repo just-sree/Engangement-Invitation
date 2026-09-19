@@ -2,7 +2,9 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [claude/mannat-sree-engagement-site-yl9oc8]
+    branches:
+      - claude/mannat-sree-engagement-site-yl9oc8
+      - claude/guest-seating-qr-code-f214ql
   workflow_dispatch:
 
 permissions:
