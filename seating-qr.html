@@ -3,56 +3,144 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Find Your Seat — QR sign</title>
+  <title>Find Your Seat — 16×20 poster</title>
   <meta name="robots" content="noindex" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="css/style.css" />
   <style>
-    /* A print-ready table sign for the welcome desk. Print → Save as PDF,
-       or print straight to letter / A4. */
-    body { background: #fff; min-height: 100dvh; display: grid; place-items: center; padding: 1rem; }
-    .sign {
-      width: min(100%, 560px); text-align: center; color: var(--gold-pale);
-      border: 2px solid var(--gold); border-radius: 50% 50% 22px 22px / 12% 12% 22px 22px;
-      padding: 2.6rem 1.6rem 2.2rem;
+    /* ───────────────────────────────────────────────────────────
+       A 16 × 20 inch welcome-desk poster.
+       Print: File → Print (or "Save as PDF"), paper size 16 × 20 in
+       (portrait), margins "None", and "Background graphics" ON.
+       The design is laid out in inches so it prints at exact size;
+       on screen it is scaled down to fit the window.
+       ─────────────────────────────────────────────────────────── */
+    @page { size: 16in 20in; margin: 0; }
+
+    html, body { background: #dcd7c9; }
+    body { display: block; overflow-x: hidden; }
+
+    .stage { position: relative; margin: 1rem 0 6rem; }
+
+    .poster {
+      position: relative; width: 16in; height: 20in; overflow: hidden;
+      color: var(--gold-pale);
       background:
-        radial-gradient(ellipse at 50% -10%, #2a4534 0%, transparent 55%),
+        radial-gradient(ellipse at 50% -8%, #2f5040 0%, transparent 55%),
+        radial-gradient(ellipse at 50% 108%, #24402f 0%, transparent 50%),
         linear-gradient(175deg, var(--emerald), var(--emerald-deep));
-      box-shadow: 0 0 0 8px rgba(201, 162, 75, 0.1);
       -webkit-print-color-adjust: exact; print-color-adjust: exact;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 1.2in 1.2in;
     }
-    .sign-eyebrow { font-size: 0.75rem; letter-spacing: 0.34em; text-transform: uppercase; color: var(--gold-light); }
-    .sign-names { font-family: var(--script); font-size: clamp(2.6rem, 9vw, 3.6rem); color: var(--gold-light); line-height: 1.15; margin: 0.2rem 0 0.4rem; }
-    .sign-title { font-family: var(--serif); font-weight: 500; font-size: clamp(1.9rem, 7vw, 2.6rem); letter-spacing: 0.04em; margin-top: 0.4rem; }
-    .sign-sub { font-family: var(--serif); font-style: italic; font-size: 1.15rem; opacity: 0.92; margin-bottom: 1.4rem; }
-    .sign-qr { display: inline-block; background: #fff; padding: 0.7rem; border-radius: 14px; box-shadow: 0 8px 26px rgba(0,0,0,0.35); }
-    .sign-qr img { width: min(66vw, 300px); height: auto; display: block; }
-    .sign-url { font-family: var(--sans); font-size: 0.78rem; letter-spacing: 0.04em; opacity: 0.8; margin-top: 1.2rem; word-break: break-all; }
-    .sign-url a { color: var(--gold-light); text-decoration: none; }
-    .print-hint { position: fixed; bottom: 1rem; left: 0; right: 0; text-align: center; font-size: 0.85rem; color: var(--olive); }
-    .print-hint button { font: inherit; padding: 0.5rem 1.2rem; border-radius: 999px; border: 1px solid var(--gold); background: #fff; color: var(--olive); cursor: pointer; }
+    /* diamond lattice, same motif as the invitation's doors */
+    .poster::before {
+      content: ""; position: absolute; inset: 0; pointer-events: none; opacity: 0.9;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='46' height='46' viewBox='0 0 46 46'%3E%3Cg fill='none' stroke='%23c9a24b' stroke-opacity='0.07'%3E%3Cpath d='M23 1 45 23 23 45 1 23z'/%3E%3Ccircle cx='23' cy='23' r='3'/%3E%3C/g%3E%3C/svg%3E");
+    }
+    /* double gold frame with an arched top, like the event card */
+    .frame {
+      position: absolute; inset: 0.55in; pointer-events: none;
+      border: 0.05in solid var(--gold);
+      border-radius: 50% 50% 0.5in 0.5in / 14% 14% 0.5in 0.5in;
+      box-shadow: 0 0 0 0.16in rgba(201, 162, 75, 0.12);
+    }
+    .frame::after {
+      content: ""; position: absolute; inset: 0.18in;
+      border: 0.02in dashed rgba(201, 162, 75, 0.45); border-radius: inherit;
+    }
+
+    .content { position: relative; display: flex; flex-direction: column; align-items: center; }
+
+    .eyebrow { font-family: var(--sans); font-weight: 400; font-size: 0.3in; letter-spacing: 0.32em; text-transform: uppercase; color: var(--gold-light); }
+    .names {
+      font-family: var(--script); font-size: 2in; line-height: 1.1; color: var(--gold-light);
+      margin: 0 0 0.1in; text-shadow: 0 0.04in 0.5in rgba(201, 162, 75, 0.35);
+    }
+    .names .amp { font-size: 0.7em; }
+    .rule { display: flex; align-items: center; gap: 0.25in; width: 6.5in; color: var(--gold); font-size: 0.45in; margin: 0.05in auto 0.25in; }
+    .rule::before, .rule::after { content: ""; flex: 1; height: 0.025in; background: linear-gradient(90deg, transparent, var(--gold), transparent); }
+    .title { font-family: var(--serif); font-weight: 500; font-size: 1.4in; line-height: 1.05; letter-spacing: 0.04em; }
+    .sub { font-family: var(--serif); font-style: italic; font-size: 0.5in; opacity: 0.92; margin: 0.2in 0 0.45in; }
+
+    .qr {
+      background: #fff; padding: 0.4in; border-radius: 0.45in;
+      box-shadow: 0 0.3in 1in rgba(0, 0, 0, 0.4);
+    }
+    .qr img { width: 7in; height: 7in; display: block; }
+
+    .steps { display: flex; gap: 1in; margin-top: 0.5in; font-family: var(--sans); font-weight: 300; font-size: 0.32in; letter-spacing: 0.05em; }
+    .steps span { display: flex; align-items: center; gap: 0.18in; }
+    .steps b {
+      font-weight: 500; display: grid; place-items: center; width: 0.5in; height: 0.5in; border-radius: 50%;
+      border: 0.03in solid var(--gold); color: var(--gold-light); font-size: 0.3in;
+    }
+    .url { font-family: var(--sans); font-weight: 400; font-size: 0.38in; letter-spacing: 0.05em; color: var(--gold-light); margin-top: 0.4in; }
+    .url a { color: inherit; text-decoration: none; }
+    .help { font-family: var(--serif); font-style: italic; font-size: 0.36in; opacity: 0.8; margin-top: 0.2in; }
+
+    /* on-screen only */
+    .toolbar {
+      position: fixed; bottom: 1rem; left: 0; right: 0; text-align: center; z-index: 5;
+      font-family: var(--sans); font-size: 0.85rem; color: var(--olive);
+    }
+    .toolbar button { font: inherit; padding: 0.55rem 1.3rem; border-radius: 999px; border: 1px solid var(--gold); background: #fff; color: var(--olive); cursor: pointer; }
+    .toolbar p { margin-top: 0.4rem; opacity: 0.85; }
+
     @media print {
-      @page { margin: 12mm; }
-      body { padding: 0; min-height: auto; }
-      .sign { width: 100%; box-shadow: none; }
-      .print-hint { display: none; }
+      html, body { background: #fff; margin: 0; }
+      .stage { transform: none !important; margin: 0; width: 16in !important; height: 20in !important; }
+      .poster { page-break-after: avoid; }
+      .toolbar { display: none; }
     }
   </style>
 </head>
 <body>
-  <div class="sign">
-    <p class="sign-eyebrow">Welcome to the engagement of</p>
-    <p class="sign-names">Mannat <span class="amp">&amp;</span> Sree</p>
-    <div class="gold-rule" aria-hidden="true"><span>❦</span></div>
-    <h1 class="sign-title">Find Your Seat</h1>
-    <p class="sign-sub">Scan with your phone camera to find your table</p>
-    <div class="sign-qr">
-      <img src="assets/seating-qr.png" alt="QR code linking to the seating chart" />
+  <div class="stage" id="stage">
+    <div class="poster">
+      <div class="frame" aria-hidden="true"></div>
+      <div class="content">
+        <p class="eyebrow">Welcome to the engagement of</p>
+        <p class="names">Mannat <span class="amp">&amp;</span> Sree</p>
+        <div class="rule" aria-hidden="true"><span>❦</span></div>
+        <h1 class="title">Find Your Seat</h1>
+        <p class="sub">Scan with your phone camera to find your table</p>
+        <div class="qr">
+          <img src="assets/seating-qr.svg" alt="QR code linking to the seating chart" />
+        </div>
+        <div class="steps" aria-hidden="true">
+          <span><b>1</b> Open your camera</span>
+          <span><b>2</b> Point it at the code</span>
+          <span><b>3</b> Tap the link</span>
+        </div>
+        <p class="url"><a href="/seating">click-here-for-rsvp.vercel.app/seating</a></p>
+        <p class="help">Need a hand? Any member of the family would love to help.</p>
+      </div>
     </div>
-    <p class="sign-url"><a href="/seating">click-here-for-rsvp.vercel.app/seating</a></p>
   </div>
-  <p class="print-hint"><button onclick="window.print()">🖨 Print this sign</button></p>
+
+  <div class="toolbar">
+    <button onclick="window.print()">🖨 Print / Save as PDF</button>
+    <p>Set paper size to 16 × 20 in, margins to None, and turn on Background graphics.</p>
+  </div>
+
+  <script>
+    // Scale the 16×20 in poster down to fit the window for previewing.
+    (function () {
+      const stage = document.getElementById("stage");
+      const W = 16 * 96, H = 20 * 96;
+      function fit() {
+        const s = Math.min(1, (window.innerWidth - 24) / W, (window.innerHeight - 110) / H);
+        stage.style.transformOrigin = "top left";
+        stage.style.transform = "translateX(" + (window.innerWidth - W * s) / 2 + "px) scale(" + s + ")";
+        stage.style.width = W + "px";
+        stage.style.height = H * s + "px";
+      }
+      fit();
+      window.addEventListener("resize", fit);
+    })();
+  </script>
 </body>
 </html>
