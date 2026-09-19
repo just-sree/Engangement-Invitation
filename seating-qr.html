@@ -7,7 +7,7 @@
   <meta name="robots" content="noindex" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Mrs+Saint+Delafield&family=Herr+Von+Muellerhoff&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
   <style>
     /* ───────────────────────────────────────────────────────────
        16 × 20 inch welcome-desk poster — white with black type.
@@ -22,7 +22,7 @@
       --ink-soft: #444444;
       --line: #1a1a1a;
       --serif: "Cormorant Garamond", Georgia, serif;
-      --names: "EB Garamond", "Cormorant Garamond", Georgia, serif;
+      --names: "Mrs Saint Delafield", "Herr Von Muellerhoff", "Brush Script MT", "Segoe Script", cursive;
       --sans: "Jost", "Segoe UI", sans-serif;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -56,12 +56,12 @@
     /* ── top: the names, biggest thing on the page ── */
     .eyebrow { font-weight: 400; font-size: 0.32in; letter-spacing: 0.4em; text-transform: uppercase; color: var(--ink-soft); }
     .names {
-      font-family: var(--names); font-style: italic; font-weight: 400; font-size: 1.9in; line-height: 1;
-      letter-spacing: 0.01em; margin: 0.15in 0 0.2in; color: var(--ink);
+      font-family: var(--names); font-weight: 400; font-size: 2.6in; line-height: 1.05;
+      margin: 0.05in 0 0.15in; color: var(--ink);
       display: flex; flex-direction: column; align-items: center;
     }
     .names span { display: block; white-space: nowrap; }
-    .names .amp { font-size: 0.34em; line-height: 1.6; color: var(--ink-soft); }
+    .names .amp { font-family: var(--serif); font-style: italic; font-size: 0.26em; line-height: 1.5; color: var(--ink-soft); }
     .rule { display: flex; align-items: center; gap: 0.3in; width: 5in; margin: 0 auto; }
     .rule::before, .rule::after { content: ""; flex: 1; height: 0.012in; background: var(--line); }
     .rule span { width: 0.14in; height: 0.14in; border: 0.012in solid var(--line); transform: rotate(45deg); }
@@ -164,7 +164,7 @@
           const w = Math.max(...[...el.children].map((c) => c.getBoundingClientRect().width));
           return w > maxW || top.getBoundingClientRect().height > maxH;
         };
-        let size = 1.9 * 96;
+        let size = 2.6 * 96;
         el.style.fontSize = size + "px";
         while (tooBig() && size > 96) { size -= 4; el.style.fontSize = size + "px"; }
       }
