@@ -7,7 +7,7 @@
   <meta name="robots" content="noindex" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400;1,500&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500&display=swap" rel="stylesheet" />
   <style>
     /* ───────────────────────────────────────────────────────────
        16 × 20 inch welcome-desk poster — white with black type.
@@ -22,7 +22,7 @@
       --ink-soft: #444444;
       --line: #1a1a1a;
       --serif: "Cormorant Garamond", Georgia, serif;
-      --script: "Great Vibes", cursive;
+      --names: "EB Garamond", "Cormorant Garamond", Georgia, serif;
       --sans: "Jost", "Segoe UI", sans-serif;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -56,21 +56,23 @@
     /* ── top: the names, biggest thing on the page ── */
     .eyebrow { font-weight: 400; font-size: 0.32in; letter-spacing: 0.4em; text-transform: uppercase; color: var(--ink-soft); }
     .names {
-      font-family: var(--script); font-weight: 400; font-size: 2.7in; line-height: 1.05; white-space: nowrap;
-      margin: 0.05in 0 0.1in; color: var(--ink);
+      font-family: var(--names); font-style: italic; font-weight: 400; font-size: 1.9in; line-height: 1;
+      letter-spacing: 0.01em; margin: 0.15in 0 0.2in; color: var(--ink);
+      display: flex; flex-direction: column; align-items: center;
     }
-    .names .amp { font-size: 0.62em; }
-    .rule { display: flex; align-items: center; gap: 0.3in; width: 6in; margin: 0 auto; }
+    .names span { display: block; white-space: nowrap; }
+    .names .amp { font-size: 0.34em; line-height: 1.6; color: var(--ink-soft); }
+    .rule { display: flex; align-items: center; gap: 0.3in; width: 5in; margin: 0 auto; }
     .rule::before, .rule::after { content: ""; flex: 1; height: 0.012in; background: var(--line); }
     .rule span { width: 0.14in; height: 0.14in; border: 0.012in solid var(--line); transform: rotate(45deg); }
-    .date { font-family: var(--serif); font-weight: 500; font-size: 0.45in; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft); margin-top: 0.22in; }
+    .date { font-family: var(--serif); font-weight: 500; font-size: 0.42in; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft); margin-top: 0.45in; }
 
     /* ── middle: the QR, centred on the page ── */
     .qr { display: inline-block; background: #fff; padding: 0.35in; border: 0.02in solid var(--line); }
-    .qr img { width: 7in; height: 7in; display: block; }
+    .qr img { width: 6.5in; height: 6.5in; display: block; }
 
     /* ── bottom: what to do ── */
-    .title { font-family: var(--serif); font-weight: 500; font-size: 1.25in; line-height: 1.05; letter-spacing: 0.06em; color: var(--ink); }
+    .title { font-family: var(--serif); font-weight: 500; font-size: 1.05in; line-height: 1.05; letter-spacing: 0.06em; color: var(--ink); }
     .sub { font-family: var(--serif); font-style: italic; font-weight: 400; font-size: 0.52in; color: var(--ink-soft); margin-top: 0.15in; }
     .steps { display: flex; justify-content: center; gap: 1in; margin-top: 0.45in; font-weight: 400; font-size: 0.3in; letter-spacing: 0.06em; color: var(--ink); }
     .steps span { display: flex; align-items: center; gap: 0.16in; }
@@ -105,9 +107,8 @@
 
       <div class="top">
         <p class="eyebrow">Welcome to the engagement of</p>
-        <p class="names" id="names">Mannat <span class="amp">&amp;</span> Sree</p>
+        <p class="names" id="names"><span>Mannat</span><span class="amp">&amp;</span><span>Sree</span></p>
         <div class="rule" aria-hidden="true"><span></span></div>
-        <p class="date">Sunday, September 20, 2026</p>
       </div>
 
       <div class="middle">
@@ -125,6 +126,7 @@
           <span><b>3</b> Tap the link</span>
         </div>
         <p class="url"><a href="/seating">click-here-for-rsvp.vercel.app/seating</a></p>
+        <p class="date">Sunday, September 20, 2026</p>
       </div>
     </div>
   </div>
@@ -146,15 +148,25 @@
         stage.style.width = W + "px";
         stage.style.height = H * s + "px";
       }
-      // Keep the names on one line whatever font ends up rendering them.
+      // Keep the names inside the top third whatever font renders them:
+      // shrink until the top block fits above the centred QR and each
+      // name fits the page width. Everything is measured through the
+      // preview transform, so the numbers stay comparable.
       function fitNames() {
         const el = document.getElementById("names");
-        // Both measured through the preview transform, so they stay comparable.
-        const max = el.parentElement.getBoundingClientRect().width;
-        const width = () => { const r = document.createRange(); r.selectNodeContents(el); return r.getBoundingClientRect().width; };
-        let size = 2.7 * 96;
+        const top = el.parentElement, poster = document.querySelector(".poster"), qr = document.querySelector(".qr");
+        const pad = parseFloat(getComputedStyle(poster).paddingTop);
+        const scale = poster.getBoundingClientRect().width / poster.offsetWidth;
+        const maxW = top.getBoundingClientRect().width;
+        // leave at least 0.4in of air between the names block and the code
+        const maxH = (poster.getBoundingClientRect().height - qr.getBoundingClientRect().height) / 2 - (pad + 0.4 * 96) * scale;
+        const tooBig = () => {
+          const w = Math.max(...[...el.children].map((c) => c.getBoundingClientRect().width));
+          return w > maxW || top.getBoundingClientRect().height > maxH;
+        };
+        let size = 1.9 * 96;
         el.style.fontSize = size + "px";
-        while (width() > max && size > 96) { size -= 4; el.style.fontSize = size + "px"; }
+        while (tooBig() && size > 96) { size -= 4; el.style.fontSize = size + "px"; }
       }
       fit(); fitNames();
       window.addEventListener("resize", fit);
