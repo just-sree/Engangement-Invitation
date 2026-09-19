@@ -37,7 +37,7 @@
       color: var(--ink); background: #fff;
       -webkit-print-color-adjust: exact; print-color-adjust: exact;
       display: grid; grid-template-rows: 1fr auto 1fr; grid-template-columns: minmax(0, 1fr);
-      align-items: center; justify-items: center; text-align: center; padding: 1.1in 1.3in;
+      align-items: center; justify-items: center; text-align: center; padding: 0.95in 1.3in;
     }
     /* a fine double frame: one hairline, one slightly heavier, both black */
     .frame { position: absolute; inset: 0.55in; pointer-events: none; border: 0.025in solid var(--line); }
@@ -52,12 +52,12 @@
     /* ── top: the names, biggest thing on the page ── */
     .eyebrow { font-weight: 400; font-size: 0.32in; letter-spacing: 0.4em; text-transform: uppercase; color: var(--ink-soft); }
     .names {
-      font-family: var(--names); font-weight: 400; font-size: 2.6in; line-height: 0.92;
-      margin: 0.1in 0 0.15in; color: var(--ink);
+      font-family: var(--names); font-weight: 400; font-size: 3.2in; line-height: 0.88;
+      margin: 0.3in 0 0.15in; color: var(--ink);
       display: flex; flex-direction: column; align-items: center;
     }
     .names span { display: block; white-space: nowrap; }
-    .names .amp { font-family: var(--serif); font-style: italic; font-size: 0.26em; line-height: 1.1; color: var(--ink-soft); }
+    .names .amp { font-family: var(--serif); font-style: italic; font-size: 0.22em; line-height: 0.9; color: var(--ink-soft); }
     .rule { display: flex; align-items: center; gap: 0.3in; width: 5in; margin: 0 auto; }
     .rule::before, .rule::after { content: ""; flex: 1; height: 0.012in; background: var(--line); }
     .rule span { width: 0.14in; height: 0.14in; border: 0.012in solid var(--line); transform: rotate(45deg); }
@@ -65,7 +65,7 @@
 
     /* ── middle: the QR, centred on the page ── */
     .qr { position: relative; z-index: 1; display: inline-block; background: #fff; padding: 0.35in; border: 0.02in solid var(--gold); }
-    .qr img { width: 6.5in; height: 6.5in; display: block; }
+    .qr img { width: 6in; height: 6in; display: block; }
 
     /* ── bottom: what to do ── */
     .title { font-family: var(--serif); font-weight: 500; font-size: 1.05in; line-height: 1.05; letter-spacing: 0.06em; color: var(--ink); }
@@ -227,13 +227,13 @@
         const pad = parseFloat(getComputedStyle(poster).paddingTop);
         const scale = poster.getBoundingClientRect().width / poster.offsetWidth;
         const maxW = top.getBoundingClientRect().width;
-        // leave at least 0.4in of air between the names block and the code
-        const maxH = (poster.getBoundingClientRect().height - qr.getBoundingClientRect().height) / 2 - (pad + 0.4 * 96) * scale;
+        // leave at least 0.3in of air between the names block and the code
+        const maxH = (poster.getBoundingClientRect().height - qr.getBoundingClientRect().height) / 2 - (pad + 0.3 * 96) * scale;
         const tooBig = () => {
           const w = Math.max(...[...el.children].map((c) => c.getBoundingClientRect().width));
           return w > maxW || top.getBoundingClientRect().height > maxH;
         };
-        let size = 2.6 * 96;
+        let size = 3.2 * 96;
         el.style.fontSize = size + "px";
         while (tooBig() && size > 96) { size -= 4; el.style.fontSize = size + "px"; }
       }
