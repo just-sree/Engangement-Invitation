@@ -35,8 +35,8 @@ Pages follows the new name automatically.
 
 **Vercel (production):** the project
 `click-here-for-mannat-and-sree-engagement-rsvp` deploys from this
-repository; it also hosts the `api/` serverless functions, so it is the
-address guests should use. Production follows the branch set under
+repository to <https://click-here-for-rsvp.vercel.app>; it also hosts the
+`api/` serverless functions, so it is the address guests should use. Production follows the branch set under
 Settings → Git in the Vercel dashboard.
 
 **Surge (custom link):** run `./deploy-surge.sh` on any machine with Node.js
@@ -163,7 +163,7 @@ opening the guest's email app pre-filled to `CONFIG.rsvpEmail`.
 `seating.html` lets guests type their name and instantly see their table
 number and table-mates, with a browsable list of every table underneath.
 Live on Vercel at
-<https://click-here-for-mannat-and-sree-engagement-rsvp.vercel.app/seating>
+<https://click-here-for-rsvp.vercel.app/seating>
 (`vercel.json` turns on clean URLs, so `/seating.html` works too).
 
 **The guest list lives in `js/seating-data.js`** — edit the `tables`
@@ -175,7 +175,7 @@ a "sample layout" notice.
 
 **QR code:** `assets/seating-qr.png` (and `.svg`) encodes the seating
 page link on the Vercel domain above. Open
-<https://click-here-for-mannat-and-sree-engagement-rsvp.vercel.app/seating-qr>
+<https://click-here-for-rsvp.vercel.app/seating-qr>
 and print it for a ready-made welcome-desk sign, or drop the image onto
 your own signage. If the Vercel project is ever renamed or moved to a
 custom domain, regenerate the image so the code keeps pointing at the
