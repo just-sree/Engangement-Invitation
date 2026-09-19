@@ -20,7 +20,8 @@
     :root {
       --ink: #1d3327;        /* emerald, from the invitation */
       --ink-soft: #3d5a49;
-      --line: #1d3327;
+      --gold: #b8922f;
+      --line: var(--gold);
       --serif: "Cormorant Garamond", Georgia, serif;
       --names: "Mrs Saint Delafield", "Herr Von Muellerhoff", "Brush Script MT", "Segoe Script", cursive;
       --sans: "Jost", "Segoe UI", sans-serif;
@@ -68,7 +69,7 @@
     .date { font-family: var(--serif); font-weight: 500; font-size: 0.42in; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-soft); margin-top: 0.45in; }
 
     /* ── middle: the QR, centred on the page ── */
-    .qr { display: inline-block; background: #fff; padding: 0.35in; border: 0.02in solid #8a6a18; }
+    .qr { display: inline-block; background: #fff; padding: 0.35in; border: 0.02in solid var(--gold); }
     .qr img { width: 6.5in; height: 6.5in; display: block; }
 
     /* ── bottom: what to do ── */
