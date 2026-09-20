@@ -23,14 +23,22 @@
    misled by placeholder names.
 */
 window.SEATING = {
-  sample: true,
+  sample: false,
   sheetCsvUrl: "",
   tables: [
-    { number: 1, name: "Head Table", guests: ["Mannat", "Sree"] },
-    { number: 2, name: "Rattan Family", guests: ["Daisy Rattan", "Sukhbir Rattan", "Sample Guest A", "Sample Guest B"] },
-    { number: 3, name: "Chackoth Family", guests: ["Sample Guest C", "Sample Guest D", "Sample Guest E"] },
-    { number: 4, name: "Friends of the Bride", guests: ["Sample Guest F", "Sample Guest G", "Sample Guest H", "Sample Guest I"] },
-    { number: 5, name: "Friends of the Groom", guests: ["Sample Guest J", "Sample Guest K", "Sample Guest L"] },
-    { number: 6, name: "", guests: ["Sample Guest M", "Sample Guest N", "The Sample Family"] },
+    { number: 1, name: "", guests: ["Sukhbir Rattan", "Daisy Rattan", "Manita Anand", "Rohit Anand", "Pamela Sethi", "Virender Sethi", "Vicky Bhatia", "Dolly Bhatia"] },
+    { number: 2, name: "", guests: ["Vinny & Bani and Family", "Kiran Bakshi", "Inaaya and Friend"] },
+    { number: 3, name: "", guests: ["Divya & Raman Suri and Family", "Jannat"] },
+    { number: 4, name: "", guests: ["Manjeet & Prabhjot Sethi", "Harleen & Sirohi", "Arjan & Gurpreet", "Jinny & Gagan"] },
+    { number: 5, name: "", guests: ["Ramishwar & Family"] },
+    { number: 6, name: "", guests: ["Inder & Satwant and Family"] },
+    { number: 7, name: "", guests: ["Sanpreet Gill & Family", "Anil & Monica Kakkar and Family", "Pavinder Sra"] },
+    { number: 8, name: "", guests: ["Dinesh & Rama Sharma & Family", "DP & Sujata Sharma and Family"] },
+    { number: 9, name: "", guests: ["Vinod & Gazal Bhansal and Family", "Arun & Surekha Ghai and Family", "Sanya"] },
+    { number: 10, name: "", guests: ["Tarun & Jaya and Family", "Santosh & Family"] },
+    { number: 11, name: "", guests: ["Sunny Bhaji / Saroj", "Ankur & Family", "Vishav & Anjali"] },
+    { number: 12, name: "", guests: ["Arvinder & Family", "Harman & Neeti"] },
+    { number: 13, name: "Head Table", guests: ["Mannat & Sree", "Debbie & Durvesh", "Sammaviya & Yousef", "Khushboo & Pavneet", "Ayesha & Husband"] },
+    { number: 14, name: "", guests: ["Charandip & Partner", "Duaa & Partner", "Disha & Ameya"] },
   ],
 };
