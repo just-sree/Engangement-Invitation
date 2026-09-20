@@ -40,6 +40,6 @@ window.SEATING = {
     { number: 12, name: "", guests: ["Arvinder & Family", "Harman & Neeti"] },
     { number: 13, name: "Head Table", guests: ["Mannat & Sree", "Debbie & Durvesh", "Sammaviya & Yousef", "Khushboo & Pavneet"] },
     { number: 14, name: "", guests: ["Charandip & Partner", "Ayesha & Husband", "Disha & Ameya"] },
-    { number: "15\u201317", name: "Sree's Friends \u2014 sit at any of these three tables", guests: ["Arjun Vannathan Kandy", "Kamlesh", "Nitish", "Kelwyn", "All of Sree's friends"] },
+    { number: "15\u201317", name: "Sree's Friends \u2014 sit at any of these three tables", guests: ["Arjun Vannathan Kandy", "Kamlesh", "Nikhil & Partner", "Kelwyn", "All of Sree's friends"] },
   ],
 };
